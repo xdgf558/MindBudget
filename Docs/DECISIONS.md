@@ -2,6 +2,28 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-22 — Repair local-only policy refresh and independent whole-zone deletion
+
+PR #130 review of `92e78d4` identified two P2 gaps: disabled sync does not observe local FX
+deletion, leaving Settings on an old snapshot; retained FX blocks ordinary recovery while the
+pre-existing tombstone staging path cannot decode a corrupt outbox to prepare cloud deletion.
+Implement the review's scoped corrective paths without relaxing FX admission or initiating live work.
+
+iCloud Settings entry calls a snapshot-only service method, not start/foreground/retry. Removing
+the last local FX row restores Enable only when no retained companion history exists. Disabled
+opt-in stays disabled; this refresh cannot create/start an adapter or resume pending deletion.
+
+Separately confirmed whole-zone deletion persists its existing `deletingCloudData` control and
+accepted account before calling transport. It does not prepare per-record tombstones or decode,
+rewrite, unblock or discard queues. Corrupt bytes and accepted ancestry survive failures/restart;
+the accepted-account adapter must confirm zone absence before the existing completion method
+clears transport, disables sync and retains all local financial records. Ordinary logical
+tombstones and strict ordinary envelope decoding remain unchanged. This supersedes only the older
+whole-zone tombstone-preparation implementation, not historical evidence or ordinary row deletion.
+
+No phone/cloud request, new consent, FX sync permission, phase completion or merge is authorized.
+Native simulator/SQLite tests with explicit adapter doubles validate the repair, not real CloudKit.
+
 ## 2026-09-22 — Owner authorizes ledger-level local FX / iCloud exclusion
 
 The owner approved the concrete temporary coexistence policy: when iCloud is enabled, adding or

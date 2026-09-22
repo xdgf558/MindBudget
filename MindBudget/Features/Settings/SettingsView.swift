@@ -356,6 +356,7 @@ private struct CloudSyncSettingsView: View {
         .settingsListPresentation()
         .navigationTitle("settings.icloudSync.title")
         .navigationBarTitleDisplayMode(.inline)
+        .task { await session.refreshCloudSyncPolicySnapshot() }
         .confirmationDialog(
             "settings.icloudSync.confirm.title",
             isPresented: $showsEnableConfirmation,

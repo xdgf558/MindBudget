@@ -47,7 +47,7 @@ indeterminate scheduling, and must not sync a public database. Sources:
 | Record identity | Canonical lower-case UUID business ID; record name `<type>/<uuid>` except recurring claim `<type>/<occurrenceKey>`, where the only accepted occurrence key is lower-case UUID + `:` + signed base-10 calendar year + `-` + two-digit month; `/`, `%`, controls, and caller strings are rejected |
 | Envelope | Closed `schemaVersion`, canonical `recordName`, `entityType`, `operation` (`upsert` or `tombstone`), per-record-lineage `revision`, informational `modifiedAt`, `parentSemanticDigest`, `semanticDigest`, and encrypted typed payload; genesis is revision 1 with absent parent digest; unknown data fails closed without mutating local facts |
 | Ordering | Server-owned CKRecord system fields/change tag plus encrypted parent/semantic digest detect replay or descent; revision 1 has no parent and every later revision names the last accepted semantic digest; wall clock and device identity never choose a divergent financial winner |
-| Deletion | Normal sync retains same-name logical tombstones indefinitely; separately confirmed cloud-wide deletion records local tombstone intent and then uses whole-zone absence as the final privacy postcondition |
+| Deletion | Normal sync retains same-name logical tombstones indefinitely; separately confirmed cloud-wide deletion persists control-level whole-zone intent without decoding/restaging old queues, and clears transport only after accepted-account zone absence |
 | Environment | One provisioned container `iCloud.com.xdgf558.MindBudget`; Debug selects Development and development push, Release selects Production and production push, and the same-named private custom zone remains environment-isolated; Production has no deployed app schema yet |
 | Background delivery | The app source plist contains exactly `UIBackgroundModes = [remote-notification]`; Debug and Release both reference it while their separate entitlement files retain Development/Production isolation; an opted-in production `CKSyncEngine` keeps `automaticallySync = true` with the fixed private-database subscription ID, while explicit foreground retry remains available |
 | Encryption | Typed ledger/note/reflection payload and semantic digest are one encrypted `Data` field in `CKRecord.encryptedValues`; only non-content routing metadata is unencrypted and no content field is indexed |
@@ -77,6 +77,10 @@ disable remains available and is distinct from cloud deletion; absence of the la
 alone is not proof that its transport footprint is gone.
 The independent `blocksOrdinarySyncForForeignCurrency` snapshot flag explains this policy and
 blocks ineffective retry/rebuild UI without replacing any prior trust-boundary status or reason.
+Settings entry refreshes the policy snapshot without starting transport or resuming deletion.
+When disabled sync has no change observer, this refresh observes deletion of the last local FX
+record; only an actually clear local/transport footprint restores Enable. It does not change the
+disabled opt-in, bypass retained companion history or reuse the foreground/retry path.
 
 Transport-footprint caching belongs to one DataActor, never to global state or persisted consent.
 Every admission first performs an uncached local-companion existence fetch limited to one row.
@@ -106,6 +110,12 @@ atomic delivery. Changing that frozen protocol or resuming FX cloud delivery nee
 Explicit cloud deletion remains an independent confirmed privacy operation. The FX pause does
 not initiate deletion or revoke a previously confirmed pending deletion; local recording remains
 available during that operation. Local Delete All still makes no claim of cloud deletion.
+Whole-zone intent is persisted without decoding or restaging the existing transport queues.
+The durable `deletingCloudData` control and accepted account survive offline failure and restart.
+Empty/malformed outbox bytes, record revisions/conflict state, encoded system fields and engine
+ancestry remain intact until the accepted-account adapter confirms zone absence and invokes the
+existing completion entry. Local financial records survive completion. A different account cannot
+complete deletion; no queue is auto-discarded, no lineage invented, and no FX upload admitted.
 
 Exactly thirteen wire types remain for synthetic protocol regression only, not FX delivery admission.
 This retained FX-expanded inventory does not disable the twelve ordinary entity types for a
@@ -324,8 +334,8 @@ and local sync metadata, and does not write cloud tombstones or delete the priva
 iCloud copies can therefore be imported if sync is enabled again. Settings and both confirmation
 steps disclose that boundary. C4B-03 must offer an explicit distinction between local delete,
 required cloud-wide delete, and disable while retaining cloud copy. Cloud-wide delete first records
-durable local tombstone intent and reports pending completion while offline, but it does not need to
-upload every tombstone before deletion: confirmed absence of the entire accepted custom zone is the
+durable whole-zone control intent and reports pending completion while offline. It leaves existing
+outbox data unchanged, including corrupt envelopes: confirmed absence of the entire accepted custom zone is the
 final privacy postcondition. Local deletion remains available even if cloud deletion cannot start.
 Re-enable after local-only deletion needs confirmation before import, and the retained-copy marker
 must remain visible in the same app session rather than waiting for a later scene refresh.

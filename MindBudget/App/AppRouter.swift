@@ -451,6 +451,10 @@ final class AppSession: ObservableObject {
         await cloudSyncService?.sceneDidBecomeActive()
     }
 
+    func refreshCloudSyncPolicySnapshot() async {
+        await cloudSyncService?.refreshPolicySnapshot()
+    }
+
     func discardReceiptImageWork() async {
         await receiptImageLifecycle.discardTemporaryImage()
     }

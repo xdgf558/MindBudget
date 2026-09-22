@@ -161,8 +161,10 @@ release evidence owned by COM-C6/COM-C12 and remain mandatory before their respe
 or formal-release exits.
 Local Delete All now republishes the retained-copy marker immediately in the same app session, so
 Settings continues to show cloud deletion and requires the reimport disclosure before Enable can
-start transport. Cloud-wide deletion stages durable local tombstone intent, then treats whole-zone
-absence as the final privacy boundary without first uploading each tombstone. An incomplete cloud
+start transport. As amended by the 2026-09-22 FX local-only P2 repair in
+`ICLOUD_SYNC_CONTRACT.md`, cloud-wide deletion persists durable control-level whole-zone intent
+without decoding or restaging old queues, then treats accepted-account zone absence as the final
+privacy boundary before clearing transport history. Ordinary row tombstones are unchanged. An incomplete cloud
 conflict candidate remains visible but has no unsafe resolution action.
 
 ## Tests

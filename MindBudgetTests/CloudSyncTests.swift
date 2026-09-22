@@ -136,6 +136,94 @@ struct CloudSyncTests {
     }
 
     @Test
+    func disabledSettingsRefreshAfterLastForeignDeletionKeepsOnlyRealHistoryBlocked() async throws {
+        for retainedHistory in [false, true] {
+            let controller = try DataController(isStoredInMemoryOnly: true)
+            _ = try await controller.dataActor.setCloudSyncEnabled(false, at: fixedDate)
+            let expense = makeExpense(amountMinorUnits: 100)
+            _ = try await controller.dataActor.createExpense(expense)
+            try seedLegacyForeignCurrency(expenseID: expense.id, in: controller)
+            if retainedHistory {
+                let context = ModelContext(controller.container)
+                context.insert(CloudSyncRecordMetadata(
+                    recordName: "expenseForeignCurrencyMetadata/\(expense.id.uuidString.lowercased())",
+                    entityTypeRaw: CloudSyncEntityType.expenseForeignCurrencyMetadata.rawValue,
+                    acceptedRevision: 1, acceptedSemanticDigest: String(repeating: "a", count: 64),
+                    acceptedOperationRaw: CloudSyncOperation.upsert.rawValue,
+                    encodedSystemFields: Data("retained-history".utf8), stateRaw: "accepted",
+                    updatedAt: fixedDate))
+                try context.save()
+            }
+            // External legacy seed precedes this process-equivalent actor's first cache read.
+            let actor = DataActor(modelContainer: controller.container)
+            let probe = CloudSyncAdapterProbe()
+            let service = CloudSyncService(dataActor: actor,
+                adapterFactory: { _ in probe.makeAdapter() },
+                retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: retainedHistory),
+                notificationCenter: NotificationCenter())
+            let session = AppSession(dataActor: actor, cloudSyncService: service)
+            await session.startCloudSyncLifecycle()
+            #expect(!session.cloudSyncSnapshot.isEnabled)
+            #expect(session.cloudSyncSnapshot.blocksOrdinarySyncForForeignCurrency)
+            #expect(!CloudSyncSettingsPresentation.showsEnableAction(session.cloudSyncSnapshot))
+
+            try await actor.deleteExpense(id: expense.id)
+            #expect(try await actor.modelCounts().foreignCurrencyMetadata == 0)
+            #expect(try await actor.cloudSyncSnapshot().blocksOrdinarySyncForForeignCurrency == retainedHistory)
+            #expect(session.cloudSyncSnapshot.blocksOrdinarySyncForForeignCurrency)
+            // No foreground activation, retry or sync notification is sent. This is the exact
+            // AppSession entry called by the iCloud Settings .task, not a transport start.
+            await session.refreshCloudSyncPolicySnapshot()
+            #expect(!session.cloudSyncSnapshot.isEnabled)
+            #expect(session.cloudSyncSnapshot.status == .disabled)
+            #expect(session.cloudSyncSnapshot.blocksOrdinarySyncForForeignCurrency == retainedHistory)
+            #expect(CloudSyncSettingsPresentation.showsEnableAction(session.cloudSyncSnapshot) == !retainedHistory)
+            #expect(!CloudSyncSettingsPresentation.showsRetryAction(session.cloudSyncSnapshot))
+            #expect(!CloudSyncSettingsPresentation.showsTrustRecoveryAction(session.cloudSyncSnapshot))
+            let context = ModelContext(controller.container)
+            #expect(try context.fetchCount(FetchDescriptor<CloudSyncRecordMetadata>()) == (retainedHistory ? 1 : 0))
+            #expect(try context.fetchCount(FetchDescriptor<CloudSyncOutboxItem>()) == 0)
+            #expect(try context.fetchCount(FetchDescriptor<CloudSyncInboxItem>()) == 0)
+            #expect(probe.creationCount == 0 && probe.adapter.startCount == 0)
+            #expect(probe.adapter.synchronizeCount == 0 && probe.adapter.deleteCloudDataCount == 0)
+            await service.stop()
+        }
+    }
+
+    @Test
+    func settingsPolicyRefreshNeverStartsSyncOrResumesDeletion() async throws {
+        for deletionPending in [false, true] {
+            let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+            _ = try await actor.setCloudSyncEnabled(true, at: fixedDate)
+            if deletionPending { _ = try await actor.beginCloudDeletion(at: fixedDate) }
+            let before = try await actor.cloudSyncSnapshot()
+            let probe = CloudSyncAdapterProbe()
+            let service = CloudSyncService(dataActor: actor,
+                adapterFactory: { _ in probe.makeAdapter() },
+                retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: true),
+                notificationCenter: NotificationCenter())
+            let session = AppSession(dataActor: actor, cloudSyncService: service)
+            await session.refreshCloudSyncPolicySnapshot()
+            #expect(session.cloudSyncSnapshot.isEnabled == before.isEnabled)
+            #expect(session.cloudSyncSnapshot.status == before.status)
+            #expect(session.cloudSyncSnapshot.cloudCopyMayExist)
+            #expect(probe.creationCount == 0 && probe.adapter.startCount == 0)
+            #expect(probe.adapter.synchronizeCount == 0 && probe.adapter.deleteCloudDataCount == 0)
+            await service.stop()
+        }
+    }
+
+    @Test
+    func emptyForeignOutboxCannotBlockConfirmedZoneDeletion() async throws {
+        try await assertDamagedForeignOutboxDeletion(envelope: Data())
+    }
+
+    @Test
+    func invalidJSONForeignOutboxCannotBlockConfirmedZoneDeletion() async throws {
+        try await assertDamagedForeignOutboxDeletion(envelope: Data("not-json".utf8))
+    }
+
+    @Test
     func newlyObservedForeignCurrencyStopsAnActiveAdapterAndRetainsTransportState() async throws {
         let controller = try DataController(isStoredInMemoryOnly: true)
         let actor = controller.makeDataActor()
@@ -1497,15 +1585,18 @@ struct CloudSyncTests {
             notificationCenter: notifications
         )
 
+        let originalName = "expense/\(expense.id.uuidString.lowercased())"
+        let original = try #require(try await actor.pendingCloudSyncRecord(named: originalName))
         #expect(await service.deleteCloudData() == .pending(.networkUnavailable))
         #expect(service.snapshot.status == .deletingCloudData)
         #expect(service.snapshot.cloudCopyMayExist)
         let pending = try await actor.pendingCloudSyncRecordNames()
         #expect(pending == ["expense/\(expense.id.uuidString.lowercased())"])
-        let tombstone = try #require(
+        let retained = try #require(
             try await actor.pendingCloudSyncRecord(named: pending[0])
         )
-        #expect(try CloudSyncCodec.decodeEnvelope(tombstone.envelopeData).operation == .tombstone)
+        #expect(retained.envelopeData == original.envelopeData)
+        #expect(try CloudSyncCodec.decodeEnvelope(retained.envelopeData).operation == .upsert)
 
         // A generic enable/disable cannot abandon the pending privacy operation.
         _ = try await actor.setCloudSyncEnabled(false, at: fixedDate.addingTimeInterval(1))
@@ -1814,6 +1905,146 @@ struct CloudSyncTests {
         let context = ModelContext(controller.container)
         context.insert(ExpenseForeignCurrencyMetadata(expenseID: expenseID, value: value))
         try context.save()
+    }
+
+    private func assertDamagedForeignOutboxDeletion(envelope: Data) async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("FX-Deletion-\(UUID())")
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let storeURL = root.appendingPathComponent("store.sqlite")
+        let expense = makeExpense(amountMinorUnits: 100)
+        let name = "expenseForeignCurrencyMetadata/\(expense.id.uuidString.lowercased())"
+        let systemFields = Data("accepted-system-fields".utf8)
+        let engineState = Data("accepted-engine-state".utf8)
+        let digest = String(repeating: "b", count: 64)
+        let retention = TestCloudSyncRetentionStore(cloudCopyMayExist: true)
+
+        func assertRetained(_ controller: DataController) async throws {
+            let detail = try #require(try await controller.dataActor.fetchExpenseDetail(id: expense.id))
+            #expect(detail.summary.amount.minorUnits == 100 && detail.summary.amount.currencyCode == "USD")
+            #expect(detail.foreignCurrency?.original.minorUnits == 100)
+            #expect(detail.foreignCurrency?.original.currencyCode == "EUR")
+            let context = ModelContext(controller.container)
+            let outboxes = try context.fetch(FetchDescriptor<CloudSyncOutboxItem>())
+            #expect(outboxes.count == 1)
+            let outbox = try #require(outboxes.first)
+            #expect(outbox.recordName == name && outbox.envelopeData == envelope)
+            #expect(outbox.semanticDigest == digest && outbox.attemptCount == 3)
+            #expect(outbox.statusRaw == CloudSyncOutboxStatus.blockedByConflict.rawValue)
+            #expect(outbox.createdAt == fixedDate && outbox.updatedAt == fixedDate)
+            let metadataRows = try context.fetch(FetchDescriptor<CloudSyncRecordMetadata>())
+            #expect(metadataRows.count == 1)
+            let metadata = try #require(metadataRows.first)
+            #expect(metadata.recordName == name && metadata.acceptedRevision == 7)
+            #expect(metadata.acceptedSemanticDigest == digest && metadata.encodedSystemFields == systemFields)
+            #expect(metadata.stateRaw == CloudSyncRecordState.conflicted.rawValue)
+            #expect(try await controller.dataActor.cloudSyncEngineStateData() == engineState)
+            let controls = try context.fetch(FetchDescriptor<CloudSyncControl>())
+            #expect(controls.count == 1)
+            let control = try #require(controls.first)
+            #expect(control.accountIdentifierHash == "accepted-account")
+            #expect(control.statusRaw == CloudSyncStatus.deletingCloudData.rawValue && control.isEnabled)
+        }
+
+        // Persist real SQLite state and the first failed adapter result, then reopen the store.
+        do {
+            let controller = try DataController(storeURL: storeURL)
+            let actor = controller.dataActor
+            _ = try await actor.createExpense(expense)
+            try seedLegacyForeignCurrency(expenseID: expense.id, in: controller)
+            let context = ModelContext(controller.container)
+            context.insert(CloudSyncControl(id: "primary", isEnabled: false, statusRaw: "disabled",
+                accountIdentifierHash: "accepted-account", consentVersion: 1,
+                lastReasonRaw: nil, updatedAt: fixedDate))
+            context.insert(CloudSyncRecordMetadata(recordName: name,
+                entityTypeRaw: CloudSyncEntityType.expenseForeignCurrencyMetadata.rawValue,
+                acceptedRevision: 7, acceptedSemanticDigest: digest, acceptedOperationRaw: "upsert",
+                encodedSystemFields: systemFields, stateRaw: CloudSyncRecordState.conflicted.rawValue,
+                updatedAt: fixedDate))
+            context.insert(CloudSyncOutboxItem(id: UUID(), recordName: name,
+                entityTypeRaw: CloudSyncEntityType.expenseForeignCurrencyMetadata.rawValue,
+                envelopeData: envelope, semanticDigest: digest,
+                statusRaw: CloudSyncOutboxStatus.blockedByConflict.rawValue,
+                createdAt: fixedDate, updatedAt: fixedDate, attemptCount: 3))
+            context.insert(CloudSyncEngineState(id: "private-zone-v1", serializationData: engineState,
+                updatedAt: fixedDate))
+            try context.save()
+            let probe = CloudSyncAdapterProbe()
+            probe.adapter.deleteHandler = {
+                do {
+                    #expect(try await actor.bindCloudSyncAccount(identifierHash: "accepted-account"))
+                    try await actor.updateCloudDeletionReason(.networkUnavailable)
+                    return .pending(.networkUnavailable)
+                } catch { return .failed(.localValidationFailed) }
+            }
+            let service = CloudSyncService(dataActor: actor,
+                adapterFactory: { _ in probe.makeAdapter() }, retentionStore: retention,
+                notificationCenter: NotificationCenter())
+            await service.start()
+            #expect(!(await service.recoverFromTrustBoundary(.rebuildCloudFromLocal)))
+            #expect(probe.creationCount == 0)
+            #expect(await service.deleteCloudData() == .pending(.networkUnavailable))
+            #expect(probe.adapter.deleteCloudDataCount == 1)
+            try await assertRetained(controller)
+            #expect(retention.cloudCopyMayExist)
+            await service.stop()
+        }
+
+        // Restart may resume only the durable delete; a different account cannot complete it.
+        do {
+            let controller = try DataController(storeURL: storeURL)
+            let actor = controller.dataActor
+            try await assertRetained(controller)
+            let probe = CloudSyncAdapterProbe()
+            probe.adapter.deleteHandler = {
+                do {
+                    #expect(try await !actor.bindCloudSyncAccount(identifierHash: "different-account"))
+                    return .pending(.accountChanged)
+                } catch { return .failed(.localValidationFailed) }
+            }
+            let service = CloudSyncService(dataActor: actor,
+                adapterFactory: { _ in probe.makeAdapter() }, retentionStore: retention,
+                notificationCenter: NotificationCenter())
+            await service.start()
+            #expect(probe.adapter.deleteCloudDataCount == 1)
+            #expect(probe.adapter.startCount == 0 && probe.adapter.synchronizeCount == 0)
+            #expect(service.snapshot.reason == .accountChanged && retention.cloudCopyMayExist)
+            try await assertRetained(controller)
+            await service.stop()
+        }
+
+        // The accepted-account adapter double supplies the zone-absent postcondition explicitly.
+        do {
+            let controller = try DataController(storeURL: storeURL)
+            let actor = controller.dataActor
+            let probe = CloudSyncAdapterProbe()
+            probe.adapter.deleteHandler = {
+                do {
+                    guard try await actor.bindCloudSyncAccount(identifierHash: "accepted-account") else {
+                        return .pending(.accountChanged)
+                    }
+                    try await actor.completeCloudDeletion()
+                    return .deleted
+                } catch { return .failed(.localValidationFailed) }
+            }
+            let service = CloudSyncService(dataActor: actor,
+                adapterFactory: { _ in probe.makeAdapter() }, retentionStore: retention,
+                notificationCenter: NotificationCenter())
+            await service.start()
+            #expect(probe.adapter.deleteCloudDataCount == 1)
+            #expect(probe.adapter.startCount == 0 && probe.adapter.synchronizeCount == 0)
+            #expect(!service.snapshot.isEnabled && !retention.cloudCopyMayExist)
+            #expect(try await actor.modelCounts().expenses == 1)
+            #expect(try await actor.modelCounts().foreignCurrencyMetadata == 1)
+            let detail = try #require(try await actor.fetchExpenseDetail(id: expense.id))
+            #expect(detail.summary.amount.minorUnits == 100 && detail.foreignCurrency?.original.minorUnits == 100)
+            let context = ModelContext(controller.container)
+            #expect(try context.fetchCount(FetchDescriptor<CloudSyncRecordMetadata>()) == 0)
+            #expect(try context.fetchCount(FetchDescriptor<CloudSyncOutboxItem>()) == 0)
+            #expect(try context.fetchCount(FetchDescriptor<CloudSyncInboxItem>()) == 0)
+            #expect(try await actor.cloudSyncEngineStateData() == nil)
+            await service.stop()
+        }
     }
 
     private func waitForPhysicalCloudExpense(

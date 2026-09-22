@@ -57,6 +57,29 @@ compatibility; those obligations remain deferred rather than passed.
 
 ## Development checks and retained non-passes
 
+### PR #130 review repair (after `92e78d4`)
+
+The independent review found stale disabled-sync Settings policy and a corrupt-outbox/whole-zone
+deletion recovery gap. Its narrow isolated programs are not native iOS/SwiftData/CloudKit runs.
+The repair adds a settings-entry snapshot-only route and persists whole-zone control intent without
+decoding/restaging queues. See the same-date decision and amended current iCloud contract.
+Neither change permits ordinary FX transport or initiates a live privacy operation.
+
+| Native simulator check | Evidence and limit |
+| --- | --- |
+| Before deletion correction | Four methods ran, NON_PASS: empty and `not-json` outboxes blocked the delete adapter and durable intent. The Settings history control also failed because the test seeded external history after an actor had cached absence. Snapshot-only no-start/no-resume passed. |
+| First corrected focused run | 104 methods / three suites, NON_PASS: both corrupt-deletion paths passed; the history fixture still reused the singleton from `makeDataActor()`, and one older whole-zone test still expected restaged tombstones. Both test assumptions were corrected; no product cache bypass was added. |
+| Corrected fixture and expectations | 104 methods / three suites PASS. Real SwiftData SQLite reopen preserves the deletion intent, accepted account, corrupt bytes/revisions/conflict state and local FX tuple through network failure and wrong-account denial; an explicit adapter double then supplies zone-absent completion and only transport is cleared. No CKContainer/CKSyncEngine/account query or real deletion runs in these tests. |
+| Settings route | Real actor + service + AppSession tests execute disabled startup → local last-FX delete → the same method used by the Settings `.task`, without foreground activation/notification. Clear history restores Enable; retained history still blocks. Both remain disabled with zero adapters. Source gates bind the actual view hook; this is not a separately executed SwiftUI end-to-end case. |
+| Prior frozen head | `92e78d4` complete-local/native evidence remains in the PR evidence channel. Hosted `35738900173` attempt 1 finished ordinary `106783167156`, FX `106783166955`, join `106803996525` successfully. This repair did not re-audit those hosted bundles and does not reuse them as its acceptance. |
+| Repair freeze | Complete default local, own-head hosted/native and independent re-review are pending. Preserve every earlier NON_PASS and the unchanged 500 ms/zero-retry/isolated-FX requirements. |
+
+Four added local-only native bindings raise that group from 25 to 29 (85 total FX unit bindings);
+the isolated FX UI inventory remains three methods. The new source/negative gate prevents Settings
+from using a transport-start route or deletion preparation from clearing/decoding/restaging history.
+
+### Earlier implementation development (retained)
+
 Development evidence is local Xcode 27 beta 6 / iOS 26.5 simulator evidence, not hosted Xcode 26.6
 or phone evidence. Work products are kept outside source discovery while building, then archived
 under ignored `TestResults/` so evidence survives temporary-folder cleanup. Native result bundles

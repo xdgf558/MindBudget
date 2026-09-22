@@ -871,10 +871,12 @@ struct ForeignCurrencyPersistenceTests {
         let actor = controller.dataActor
         _ = try await actor.setCloudSyncEnabled(true)
         _ = try await actor.createExpense(draft())
+        let originalRecords = try await fxRemoteRecords(actor)
         let deleting = try await actor.beginCloudDeletion(at: date)
         #expect(deleting.status == .deletingCloudData)
         let deletionRecords = try await fxRemoteRecords(actor)
         #expect(!deletionRecords.isEmpty)
+        #expect(deletionRecords.map(\.envelopeData) == originalRecords.map(\.envelopeData))
         let id = UUID()
         _ = try await actor.createExpense(draft(id: id, foreign: facts()),
             featureAccess: FeatureAccessService(entitlements: .proSubscription))
@@ -890,7 +892,7 @@ struct ForeignCurrencyPersistenceTests {
         #expect(retainedDeletionRecords.map(\.recordName) == deletionRecords.map(\.recordName))
         #expect(retainedDeletionRecords.map(\.envelopeData) == deletionRecords.map(\.envelopeData))
         for record in retainedDeletionRecords {
-            #expect(try CloudSyncCodec.decodeEnvelope(#require(record.envelopeData)).operation == .tombstone)
+            #expect(try CloudSyncCodec.decodeEnvelope(#require(record.envelopeData)).operation == .upsert)
         }
 
         // The privacy erase exception admits local stewardship and the dedicated delete path,
@@ -1605,6 +1607,7 @@ struct ForeignCurrencyPersistenceTests {
         try await actor.enableForeignCurrencyProtocolFixtures()
         try await actor.recoverCloudSyncFromLocalAuthority(at: date)
         #expect(try await actor.pendingCloudSyncRecordNames().count == 2)
+        let beforeDeletion = try await fxRemoteRecords(actor)
         // This flag enables the DELETE operation, not normal sync. Local recording stays usable.
         _ = try await actor.beginCloudDeletion(at: date)
         _ = try await actor.createExpense(draft(foreign: facts()), featureAccess: FeatureAccessService(entitlements: .proSubscription))
@@ -1612,10 +1615,9 @@ struct ForeignCurrencyPersistenceTests {
         _ = try await actor.updateExpense(id: id, with: draft(id: id, amount: 100))
         #expect(try await actor.modelCounts().expenses == 3)
         #expect(try await actor.modelCounts().foreignCurrencyMetadata == 2)
-        for name in try await actor.pendingCloudSyncRecordNames() {
-            let pending = try #require(try await actor.pendingCloudSyncRecord(named: name))
-            #expect(try CloudSyncCodec.decodeEnvelope(pending.envelopeData).operation == .tombstone)
-        }
+        let retained = try await fxRemoteRecords(actor)
+        #expect(retained.map(\.recordName) == beforeDeletion.map(\.recordName))
+        #expect(retained.map(\.envelopeData) == beforeDeletion.map(\.envelopeData))
         try await actor.completeCloudDeletion(at: date)
         #expect(try await !actor.cloudSyncSnapshot().isEnabled)
         #expect(try await actor.modelCounts().expenses == 3)

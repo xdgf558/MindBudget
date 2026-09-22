@@ -2,6 +2,34 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-22 — PR #130 P2 repair: stale Settings snapshot and corrupt deletion queue
+
+Kept Draft after the review of `92e78d4`. That head's hosted `35738900173` attempt 1 has now
+completed all three jobs successfully; it does not accept these subsequent repairs. The reviewer
+used narrow isolated Swift programs, not native iOS/SwiftData/CloudKit end-to-end evidence.
+
+Added a separate AppSession/service snapshot refresh on entry to iCloud Settings. Replaced
+whole-zone per-record tombstone preparation with durable control-only intent, preserving accepted
+account and corrupt queues until confirmed-zone completion. Ordinary envelope decoding, FX pause,
+user confirmations, local money and the native account/zone postcondition remain in force.
+Current iCloud contracts are amended; historical COM decisions are not rewritten.
+
+`FX_01_LOCAL_ONLY_DELIVERY.md` owns the full development ledger. The first four-test native run
+retained the corrupt-outbox deletion failures; the new history control also exposed a test seed
+written after an existing actor had cached transport absence. A second focused run passed both
+corrupt deletion tests but still failed that seed and one old tombstone expectation. Corrected
+the fixture to explicitly construct a new actor after legacy seeding (`makeDataActor()` returns
+the existing singleton), and updated whole-zone-only expectations to require unchanged queues.
+The subsequent three-suite native run passed 104 methods. These are retained development runs,
+not final candidate/hosted acceptance. Native bundles/logs remain outside source discovery.
+
+Four new mandatory native bindings cover Settings entry without observers, no-start/no-resume
+refresh, and empty/invalid-JSON outbox deletion across SQLite reopen/account rejection/completion.
+The source gate pins the route, snapshot-only method, intent-only persistence and native deletion
+ordering. No phone, real CloudKit, install/uninstall, probe preparation or user-data cleanup ran.
+Complete local validation, exact-head hosted/native acceptance and independent re-review remain
+pending at this repair freeze. D's original four boxes stay open; E/Insights/share remain unentered.
+
 ## 2026-09-22 — Implement approved local FX / iCloud exclusion as one batch
 
 Owner approved the concrete ledger-level coexistence rule after the earlier deferral-only record.

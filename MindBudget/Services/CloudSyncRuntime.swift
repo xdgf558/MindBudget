@@ -32,6 +32,7 @@ protocol CloudSyncServicing: AnyObject {
     func setEnabled(_ enabled: Bool, reimportConfirmed: Bool) async
     func retry() async
     func sceneDidBecomeActive() async
+    func refreshPolicySnapshot() async
     func refreshAfterLocalDataDeletion() async
     func conflicts() async -> [CloudSyncConflictSummary]
     func resolveConflict(recordName: String, resolution: CloudSyncConflictResolution) async -> Bool
@@ -128,6 +129,12 @@ final class CloudSyncService: CloudSyncServicing {
     func sceneDidBecomeActive() async {
         await reloadSnapshot()
         await synchronizeAdapterIfPermitted()
+    }
+
+    /// Settings entry must observe local-only changes even when disabled sync has no observers.
+    /// Unlike foreground/retry, this does not create an adapter, start transfer or resume deletion.
+    func refreshPolicySnapshot() async {
+        await reloadSnapshot()
     }
 
     /// Local Delete All removes the persisted sync control row but deliberately retains the

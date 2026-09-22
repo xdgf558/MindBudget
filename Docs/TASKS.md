@@ -18,6 +18,9 @@ physical-device preparation. The decision and implementation boundary are in
   stewardship, locked Int64 accounting and dual-amount CSV unchanged; no new network or live test.
   Actor/UI/transport implementation and regression tests are in progress; no final validation or
   independent approval is preclaimed. Retained companion protocol tests are synthetic, not admission.
+  PR #130 review repair adds snapshot-only Settings entry and corrupt-queue-independent confirmed
+  whole-zone intent; its focused tests do not substitute for repaired-head acceptance. See
+  `Docs/FX_01_LOCAL_ONLY_DELIVERY.md` for retained failures, corrected fixtures and evidence limits.
 - [ ] Close out the revised local scope only on its own evidence and explicit acceptance. Do not
   mark the original unexecuted cloud obligations Passed or automatically enter E/Insights/share.
 

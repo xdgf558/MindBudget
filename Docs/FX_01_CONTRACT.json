@@ -153,6 +153,7 @@
     "pauseRetainsQueueAndEngineAncestry": true,
     "pausePreservesOtherStickyCauses": true,
     "independentSnapshotFlag": "blocksOrdinarySyncForForeignCurrency",
+    "settingsEntryRefresh": "snapshotOnlyWithoutStartingTransportOrResumingDeletion",
     "companionFootprint": ["localMetadata", "acceptedMetadata", "outbox", "inbox"],
     "transportFootprintCache": {
       "owner": "singleDataActor",
@@ -167,6 +168,8 @@
     "legacyParentFirstArrival": "unmarkedFrozenParentMayApplyBeforeCompanionThenPause",
     "ordinaryLedgerWithoutFX": "unchanged",
     "explicitCloudDeletion": "independentConfirmedPrivacyOperation",
+    "cloudDeletionIntent": "durableControlWithoutDecodingOrRestagingTransport",
+    "cloudDeletionCompletion": "acceptedAccountZoneAbsentThenClearTransportOnly",
     "protocolFixtureCompileGuard": "DEBUG",
     "protocolFixtureStoreBoundary": "allConfigurationsInMemoryOnly",
     "protocolFixtureCallers": "unitTestsOnly",

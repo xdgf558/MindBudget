@@ -237,8 +237,8 @@ extension DataActor {
     }
 
     /// Begins the separately confirmed cloud-wide deletion operation. The local ledger remains
-    /// available; durable logical tombstones record the person's deletion intent before any
-    /// CloudKit call, and the accepted custom zone is the final privacy deletion boundary.
+    /// available. The durable control records whole-zone intent before any CloudKit call;
+    /// existing transport bytes are not decoded, restaged or discarded to prepare this operation.
     func beginCloudDeletion(at date: Date = Date()) throws -> CloudSyncSnapshot {
         do {
             let existingControl = try fetchCloudSyncControl()
@@ -256,8 +256,6 @@ extension DataActor {
             control.statusRaw = CloudSyncStatus.deletingCloudData.rawValue
             control.lastReasonRaw = nil
             control.updatedAt = date
-            modelContext.processPendingChanges()
-            _ = try stageAllCloudTombstones(at: date)
             try modelContext.save()
             CloudSyncLocalChangeSignal.post()
             return try cloudSyncSnapshot()
@@ -551,51 +549,6 @@ extension DataActor {
         for model in models {
             if let projection = try cloudSyncProjection(for: model, operation: .upsert) {
                 staged = try stageCloudSyncProjection(projection, at: date) || staged
-            }
-        }
-        return staged
-    }
-
-    private func stageAllCloudTombstones(at date: Date) throws -> Bool {
-        var projections: [String: CloudSyncMutationProjection] = [:]
-        for model in try allCloudSyncBusinessModels() {
-            if let projection = try cloudSyncProjection(for: model, operation: .tombstone) {
-                projections[try projection.recordName] = projection
-            }
-        }
-        // A fact already deleted locally can still exist in the private zone. Retain every known
-        // accepted/outbox identity in the deletion plan so the durable intent describes the full
-        // local sync history before the zone itself is removed.
-        let knownMetadata = try modelContext.fetch(FetchDescriptor<CloudSyncRecordMetadata>())
-        for metadata in knownMetadata {
-            guard projections[metadata.recordName] == nil,
-                  let entityType = CloudSyncEntityType(rawValue: metadata.entityTypeRaw),
-                  let identity = try? CloudSyncCodec.identity(from: metadata.recordName) else {
-                continue
-            }
-            let projection = CloudSyncMutationProjection(
-                entityType: entityType,
-                identity: identity,
-                operation: .tombstone,
-                payload: nil
-            )
-            projections[metadata.recordName] = projection
-        }
-
-        var staged = false
-        for projection in projections.values {
-            let recordName = try projection.recordName
-            staged = try stageCloudSyncProjection(projection, at: date) || staged
-            // Global deletion is an explicit resolution of every per-record conflict. The zone
-            // delete remains the final authority, but no previously blocked outbox may hide the
-            // durable tombstone intent from the pending-operation surface.
-            if let outbox = try fetchCloudSyncOutbox(recordName: recordName) {
-                outbox.statusRaw = CloudSyncOutboxStatus.pending.rawValue
-                outbox.updatedAt = date
-            }
-            if let metadata = try fetchCloudSyncMetadata(recordName: recordName) {
-                metadata.stateRaw = CloudSyncRecordState.pending.rawValue
-                metadata.updatedAt = date
             }
         }
         return staged

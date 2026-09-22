@@ -17,6 +17,12 @@ The frozen parent cannot identify old remote FX before its companion arrives; th
 or mixed-version acceptance. See the 2026-09-22 decision and scope amendment in
 `Docs/FX_01_MANUAL_CURRENCY_PLAN.md`. D stays In Progress; E and Insights/share remain unentered.
 
+Current PR #130 repair follows the two P2 findings on `92e78d4`: refresh policy on iCloud Settings
+entry without starting transport, and persist independent whole-zone deletion without decoding or
+rewriting retained queues. `FX_01_LOCAL_ONLY_DELIVERY.md` owns the new native regression ledger;
+the repaired candidate still requires full local, own-head hosted/native and independent review.
+The prior head's green CI does not close these findings or authorize merge/live operations.
+
 Prior offline preparation checkpoint (now deferred): PR #129 reviewed head `b9553fe` was independently accepted
 and owner-authorized merged as `2cf0e214`. Its complete-local/native acceptance is recorded in
 the accepted PR review; hosted `34580440549` attempt 1 has successful ordinary, FX and join jobs.
