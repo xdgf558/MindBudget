@@ -20,7 +20,9 @@ Production schema deployment or distribution by itself; those proofs remain COM-
 MindBudget remains local-first. Sync is Free for every entitlement state, default off, and begins
 only after explicit user choice. Missing account, disabled iCloud, offline state, quota, malformed
 remote data, CloudKit failure, or unresolved conflict never prevents local create/read/edit/export/
-Delete All.
+Delete All. The separately accepted FX-01D local-only policy below prevents new or converted
+foreign-currency records while ordinary sync is enabled; it does not prevent ordinary recording
+or maintenance of already saved FX facts.
 
 The accepted architecture is **custom versioned records in one custom zone of the signed-in person's CloudKit
 private database, synchronized by `CKSyncEngine`**. `CKSyncEngine` supplies Apple-managed
@@ -52,10 +54,68 @@ indeterminate scheduling, and must not sync a public database. Sources:
 | Attachments | Receipt images, OCR text/geometry, local intermediates, recovery artifacts, logs, StoreKit data, notification state, and config cache never enter CloudKit |
 | Managed SwiftData sync | Every production `ModelConfiguration` across `MindBudget/**/*.swift` and every local test-store configuration across `MindBudgetTests/**/*.swift` must explicitly use `cloudKitDatabase: .none`; production `ModelContainer` construction remains centralized in `DataController`, before any CloudKit entitlement/import |
 | Disable/delete | Disable cancels transfer and retains local facts; remote deletion is separately confirmed and never silently implied |
+| Local FX admission | Ledger-level mutual exclusion with ordinary iCloud; no new/converted FX while ordinary sync is enabled, and an FX footprint blocks enable/recovery; no ordinary no-FX behavior change |
 
 ## Why this architecture
 
-### Historical FX-01B local-store foundation (superseded in the D source candidate)
+### Current FX-01D local-only boundary — owner-approved 2026-09-22
+
+The current delivery is ledger-level mutual exclusion between local FX and ordinary iCloud.
+Ordinary enabled sync rejects new FX records and ordinary-to-FX conversion atomically, including
+when transport is offline or paused. Existing FX stewardship, locked accounting, dual-amount CSV
+and the accepted local-Pro boundary remain unchanged; cloud availability is never a permission
+or price gate. A ledger without any FX footprint retains ordinary Free/default-off iCloud behavior.
+
+Any local companion, accepted companion metadata, outbox companion or inbox companion is an FX
+footprint, including malformed, pending, quarantined and tombstoned retained records. Such a
+footprint rejects enable and trust-boundary recovery before account state or ancestry is cleared.
+Previously enabled coexistence enters `pausedForeignCurrency` with `foreignCurrencyLocalOnly`:
+the opt-in flag, local financial facts, queues, encoded system fields and engine serialization remain
+retained. Other sticky account/key/zone causes are not overwritten. Retry, foregrounding and late
+callbacks cannot resume ordinary transport or convert the pause into a generic failure. Explicit
+disable remains available and is distinct from cloud deletion; absence of the last visible FX row
+alone is not proof that its transport footprint is gone.
+The independent `blocksOrdinarySyncForForeignCurrency` snapshot flag explains this policy and
+blocks ineffective retry/rebuild UI without replacing any prior trust-boundary status or reason.
+
+An incoming batch containing a companion is durably retained in full before any financial
+application. Once a companion is known in that cohort or another retained footprint, no parent-only
+import, cohort application, pending replay or conflict resolution may bypass the local-only pause.
+Existing queued parents and companions remain retained, not filtered,
+acknowledged, restaged or discarded to manufacture a syncable ledger. Native start, account queries,
+send/fetch delegates, actual record providers and asynchronous callbacks recheck durable ordinary
+transport authority; stopping an engine does not clear its durable state.
+
+Frozen-parent compatibility limit: when a legacy remote parent arrives in an earlier batch with
+no companion or other FX footprint, its unchanged payload has no FX discriminator and may already
+have been accepted as an ordinary expense. A later companion is retained and pauses transport;
+the already accepted parent is not retroactively deleted or revalued. The corresponding regression
+records this limitation, not a mixed-peer/cloud compatibility pass or a claim of arbitrary-order
+atomic delivery. Changing that frozen protocol or resuming FX cloud delivery needs later owner entry.
+
+Explicit cloud deletion remains an independent confirmed privacy operation. The FX pause does
+not initiate deletion or revoke a previously confirmed pending deletion; local recording remains
+available during that operation. Local Delete All still makes no claim of cloud deletion.
+
+Exactly thirteen wire types remain for synthetic protocol regression only, not FX delivery admission.
+This retained FX-expanded inventory does not disable the twelve ordinary entity types for a
+ledger without any FX footprint.
+The frozen `.expense` payload and envelope version remain unchanged. Historical companion codec,
+lineage/cohort and mixed-version tests retain their value as protocol fixtures, not proof that the
+current product admits FX cloud transport. `enableForeignCurrencyProtocolFixtures()` exists only
+under `#if DEBUG`, requires every ModelContainer configuration to be in-memory, and may be called
+only from unit tests. Fixture-enabled actors are always denied native ordinary transport, including
+when they contain only ordinary records; no launch argument, preference, release build or UI grants
+this authority. The fixture also cannot invoke native cloud deletion; a synthetic privacy test
+must use a fake adapter, never a real account or custom-zone operation.
+
+The machine-readable boundary is `../FX_01_CONTRACT.json`; `Scripts/fx01_contract.py` checks the
+source admission gates and negative mutations. The separate exact native unit bindings cover the
+product boundary and do not treat a passing synthetic round-trip as product admission. This contract
+does not claim a new pass, complete D, enter E/Insights/share, resume the physical probe or authorize
+any account/cloud/device operation. Foreign-currency cloud delivery and the probe remain deferred.
+
+### Historical FX-01B local-store foundation (superseded by the current local-only boundary)
 
 Schema V7 adds a local `ExpenseForeignCurrencyMetadata` companion while retaining all V6 sync
 models and the existing twelve-type wire allow-list. `.expense` payload keys, semantic digest
@@ -69,12 +129,17 @@ the exact thirteen-type inventory together before removing these protections.
 
 ### FX-01D companion transport — merged implementation, closeout pending
 
+Historical implementation/protocol inventory, retained for synthetic regression. The current
+local-only boundary above supersedes its ordinary product admission; this heading remains the
+stable anchor for the frozen thirteen-type protocol checker.
+
 Status: FX-01D In Progress; implementation merged; D closeout pending.
 PR #117 reviewed `7e901f2`, hosted `34090503092` and merge `d19c640` establish implementation
 provenance, not real mixed-version CloudKit or cross-calendar acceptance. See
 `../FX_01D_CLOSEOUT.md`; the original D checklist and unexecuted boundaries remain unchanged.
 Sync remains default off; this compatibility work does not enable a channel, deploy a schema,
-request an account, or authorize a real CloudKit run. Existing enabled paths alone are in scope.
+request an account, or authorize a real CloudKit run. The current local-only boundary above
+supersedes ordinary product admission of FX cohorts; the following is retained protocol behavior.
 
 - Wire inventory: exactly 13 entity types; `expenseForeignCurrencyMetadata` is the new companion.
 - Frozen parent: `.expense` payload keys, field types, semantic digest algorithm and envelope version 1 remain unchanged.
@@ -145,15 +210,16 @@ metadata models: `CloudSyncControl`, `CloudSyncRecordMetadata`, `CloudSyncOutbox
 business or financial authority. The V6 `ModelCounts` inventory covered **16** business tables
 (not 15): the prior C4A 15-table audit predates the V5 companion. FX-01B's Schema V7 adds
 `ExpenseForeignCurrencyMetadata`, bringing the local business/companion count to **17**.
-FX-01D's merged implementation adds its separate thirteenth sync type; the twelve legacy
-types retain their payload contracts. UUIDs below are current
+FX-01D's merged implementation retains its separate thirteenth type for synthetic regression only;
+the current local-only gate denies FX product transport and the twelve legacy types retain their
+payload contracts. UUIDs below are current
 unique business IDs; `BudgetPlanSemantics.planID` and `MerchantAccountingContext.merchantID` are
 stable companion keys.
 
 | V6 business owner | Identity / relationship | C4B treatment |
 |---|---|---|
 | Expense | `id`; scalar recurrence/merchant provenance | Sync authoritative envelope |
-| ExpenseForeignCurrencyMetadata (V7) | unique `expenseID`, expense parent required | Merged D implementation: separate encrypted companion, never added to the Expense payload; phase closeout pending |
+| ExpenseForeignCurrencyMetadata (V7) | unique `expenseID`, expense parent required | Retained synthetic-only separate encrypted companion; ordinary product transport denied by the ledger-level local-only boundary; never added to the Expense payload |
 | Income | `id` | Sync authoritative envelope |
 | IncomeAllocation | `id`, unique `incomeID`, optional `budgetPlanID` | Sync; missing parent queues, never guesses |
 | SavingsGoal | `id` | Sync authoritative envelope |

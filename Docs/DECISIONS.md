@@ -2,6 +2,50 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-22 — Owner authorizes ledger-level local FX / iCloud exclusion
+
+The owner approved the concrete temporary coexistence policy: when iCloud is enabled, adding or
+converting a record to FX requires the user to disable sync first. Existing FX facts prevent
+re-enabling ordinary sync. A legacy store containing both keeps all facts/transport history and
+pauses ordinary transport with clear localized explanation; the opt-in is not silently switched
+off. Existing FX remains readable, editable, deletable and exportable after Pro expiry. A store
+without FX continues ordinary iCloud unchanged. No auto-delete, partial parent-only export,
+remote cleanup, live run, phase completion or release is authorized.
+
+Implement one actor-authoritative boundary across creation, enable/recovery, startup, queue access,
+inbox replay/conflict resolution and adapter callbacks. An FX footprint includes durable companion
+transport history, not only currently visible FX rows, so deleting a local row cannot implicitly
+resume old queued traffic. Explicit cloud deletion retains its separate confirmation and path;
+it is never initiated by this gate. Unknown incoming companions remain retained without applying
+their financial cohort. The frozen parent format cannot identify an FX row before its companion
+arrives; do not claim this deferral solves old/new peer identification or real-cloud compatibility.
+
+Retain old paired-protocol fixtures as explicit Debug/in-memory-only tests. Their opt-in must be
+unavailable in Release and rejected by the real CloudKit transport; it is not a user setting or
+permission to revive the paused probe. Default-mode tests own the new product policy. Preserve
+all existing money/pro-access/CSV/privacy tests and zero-retry/final-candidate acceptance gates.
+
+## 2026-09-22 — Prioritize local FX and defer physical-probe/cloud delivery work
+
+After the local-only alternative and its sync-boundary risk were explained, the owner confirmed:
+“好的，确认，暂时不要 反复准备真机流程了”. Stop the physical-probe workflow, including routine
+backup hunting, version-4 request generation/refresh and repeated phone authorization prompts.
+Prioritize local foreign-currency recording; defer foreign-currency iCloud delivery until a later
+explicit re-entry. No device/cloud/cleanup/uninstall operation is authorized by this decision.
+
+This does not mark missing cloud evidence Passed, delete accepted transport/probe code or old
+claims/results, disable ordinary iCloud, change the money/pro-access contract, complete D, or
+enter E/Insights/share. The current runtime still contains the merged companion transport.
+Implement and review a coherent local-only boundary before describing the feature as isolated:
+cover active sync, pending/incoming facts, edits/recovery and retained FX data without partial
+parent-only financial copies or metadata loss. Material coexistence behavior is still to be
+resolved; no silent global sync toggle or data deletion is permitted. Keep necessary automatic
+tests, independent review and final-candidate acceptance; do not repeat physical preparation.
+
+`Docs/FX_01_MANUAL_CURRENCY_PLAN.md` owns the scope amendment and `Docs/TASKS.md` groups the
+remaining delivery. Historical failure/evidence and exact one-use approval rules remain intact
+for any future explicitly resumed physical work.
+
 ## 2026-09-11 — Measure the Dashboard wall-clock gate before Release compilation
 
 The first default complete-local run of the version-4 installed-continuation candidate, exact

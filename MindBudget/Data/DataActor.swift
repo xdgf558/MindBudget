@@ -280,6 +280,18 @@ actor DataActor {
     /// Remote application reuses the same validation and save boundary but must never echo a
     /// fetched CloudKit record back into the durable outbox.
     var isApplyingCloudSyncMutation = false
+    #if DEBUG
+    private(set) var foreignCurrencyProtocolFixturesEnabled = false
+
+    /// Synthetic codec tests only. Never a product preference or transport admission.
+    func enableForeignCurrencyProtocolFixtures() throws {
+        guard !modelContext.container.configurations.isEmpty,
+              modelContext.container.configurations.allSatisfy({ $0.isStoredInMemoryOnly }) else {
+            throw ForeignCurrencyError.syncRequiresCompanionProtocol
+        }
+        foreignCurrencyProtocolFixturesEnabled = true
+    }
+    #endif
 
     func createExpense(
         _ draft: ExpenseDraft,

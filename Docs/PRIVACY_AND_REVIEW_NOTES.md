@@ -58,11 +58,15 @@ operation or verification fails; a partial failure is never reported as complete
 The V7 foreign-currency companion is part of each expense's local deletion and Delete All
 verification, including damaged metadata. Exporting does not create an extra persistent FX
 copy. FX-01D does not change the existing distinction between local deletion and explicit
-deletion of iCloud copies. The D source candidate now carries a separate thirteenth encrypted
-`expenseForeignCurrencyMetadata` fact under the existing explicit opt-in. It contains the original
+deletion of iCloud copies. The 2026-09-22 owner-approved local-only policy now excludes ordinary
+iCloud and FX on the same ledger: new FX needs explicit sync disable; retained FX facts or
+transport history block enable/recovery, and legacy coexistence pauses without deleting data or
+changing opt-in. Explicit cloud erasure remains separately confirmed and preserves local CRUD.
+The retained protocol carries a separate thirteenth encrypted `expenseForeignCurrencyMetadata`
+fact for synthetic regression, not current product transport admission. It contains the original
 amount/currency, exact rate, saved date/time zone/source and parent identity, never added to the
-frozen accounting Expense envelope or plaintext CloudKit fields. Settings disclosure names these
-fields in English and Chinese. This does not enable iCloud or claim real-account transport proof.
+frozen accounting Expense envelope or plaintext CloudKit fields. Settings disclosure explains the
+local-only pause and retained data in English and Chinese. This does not enable iCloud or claim real-account transport proof.
 Parent/companion validation, durable pending, atomic conflict choice and scoped tombstones are
 specified in `Commercialization/ICLOUD_SYNC_CONTRACT.md`; malformed data cannot silently strip FX.
 Expense summaries remain accounting-only: no FX metadata is added to model contexts, Spotlight,

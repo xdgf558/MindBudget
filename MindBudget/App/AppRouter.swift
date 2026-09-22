@@ -7,6 +7,10 @@ private struct ExistingPremiumEntryAccessEnvironmentKey: EnvironmentKey {
     static let defaultValue = ExistingPremiumEntryAccess()
 }
 
+private struct CloudSyncSnapshotEnvironmentKey: EnvironmentKey {
+    static let defaultValue = CloudSyncSnapshot.disabled
+}
+
 private struct FeatureAccessAuthorityEnvironmentKey: EnvironmentKey {
     static let defaultValue: any FeatureAccessChecking = FeatureAccessService()
 }
@@ -33,6 +37,10 @@ private struct TelemetryEventRecorderEnvironmentKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
+    var cloudSyncSnapshot: CloudSyncSnapshot {
+        get { self[CloudSyncSnapshotEnvironmentKey.self] }
+        set { self[CloudSyncSnapshotEnvironmentKey.self] = newValue }
+    }
     var featureAccessAuthority: any FeatureAccessChecking {
         get { self[FeatureAccessAuthorityEnvironmentKey.self] }
         set { self[FeatureAccessAuthorityEnvironmentKey.self] = newValue }
@@ -1008,6 +1016,7 @@ struct AppRouter: View {
             }
         }
         .environment(\.existingPremiumEntryAccess, session.existingPremiumEntryAccess)
+        .environment(\.cloudSyncSnapshot, session.cloudSyncSnapshot)
         .environment(\.featureAccessAuthority, session.featureAccessAuthority)
         .environment(\.receiptImageLifecycle, session.receiptImageLifecycle)
         .environment(

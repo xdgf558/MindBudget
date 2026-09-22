@@ -196,6 +196,36 @@ enum CloudSyncDeletionGuidance: Equatable {
 }
 
 enum CloudSyncSettingsPresentation {
+    static func isForeignCurrencyPaused(_ snapshot: CloudSyncSnapshot) -> Bool {
+        snapshot.status == .pausedForeignCurrency || snapshot.blocksOrdinarySyncForForeignCurrency
+    }
+
+    static func showsRetryAction(_ snapshot: CloudSyncSnapshot) -> Bool {
+        snapshot.isEnabled && !isForeignCurrencyPaused(snapshot)
+    }
+
+    static func showsDisableAction(_ snapshot: CloudSyncSnapshot) -> Bool {
+        (snapshot.isEnabled || snapshot.status == .pausedForeignCurrency)
+            && snapshot.status != .deletingCloudData
+    }
+
+    static func showsEnableAction(_ snapshot: CloudSyncSnapshot) -> Bool {
+        !snapshot.isEnabled && !isForeignCurrencyPaused(snapshot)
+            && !showsTrustRecoveryAction(snapshot)
+    }
+
+    static func showsTrustRecoveryAction(_ snapshot: CloudSyncSnapshot) -> Bool {
+        guard !isForeignCurrencyPaused(snapshot) else { return false }
+        return switch snapshot.status {
+        case .pausedAccountChanged, .pausedEncryptedDataReset, .pausedRemoteZoneDeleted:
+            true
+        case .disabled, .starting, .ready, .syncing, .waitingForNetwork,
+             .accountUnavailable, .quotaExceeded, .pausedForeignCurrency,
+             .deletingCloudData, .failed:
+            false
+        }
+    }
+
     static func requiresReimportConfirmation(_ snapshot: CloudSyncSnapshot) -> Bool {
         snapshot.cloudCopyMayExist
     }
@@ -213,7 +243,8 @@ enum CloudSyncSettingsPresentation {
         case .networkUnavailable, .serviceUnavailable: return .network
         case .noAccount, .accountChanged: return .account
         case .quotaExceeded: return .quota
-        case .encryptedDataReset, .remoteZoneDeleted, .malformedRecord, .unsupportedSchema,
+        case .encryptedDataReset, .remoteZoneDeleted, .foreignCurrencyLocalOnly,
+             .malformedRecord, .unsupportedSchema,
              .invalidIdentity, .invalidLineage, .divergentConflict, .missingParent,
              .physicalDeletion, .localValidationFailed, .transportFailed:
             return .failed
@@ -242,6 +273,12 @@ private struct CloudSyncSettingsView: View {
                         .multilineTextAlignment(.trailing)
                 }
                 .accessibilityIdentifier("settings.icloudSync.status")
+
+                if CloudSyncSettingsPresentation.isForeignCurrencyPaused(session.cloudSyncSnapshot) {
+                    Text("settings.icloudSync.foreignCurrency.localOnly")
+                        .foregroundStyle(theme.attentionText)
+                        .accessibilityIdentifier("settings.icloudSync.foreignCurrency.localOnly")
+                }
 
                 if session.cloudSyncSnapshot.pendingCount > 0 {
                     LabeledContent(
@@ -272,19 +309,22 @@ private struct CloudSyncSettingsView: View {
             }
 
             Section {
-                if session.cloudSyncSnapshot.isEnabled {
+                if CloudSyncSettingsPresentation.showsRetryAction(session.cloudSyncSnapshot) {
                     Button("settings.icloudSync.retry") {
                         Task { await perform { await session.retryCloudSync() } }
                     }
                     .disabled(isWorking)
+                }
 
-                    if session.cloudSyncSnapshot.status != .deletingCloudData {
-                        Button("settings.icloudSync.disable", role: .destructive) {
-                            Task { await perform { await session.setCloudSyncEnabled(false) } }
-                        }
-                        .disabled(isWorking)
+                if CloudSyncSettingsPresentation.showsDisableAction(session.cloudSyncSnapshot) {
+                    Button("settings.icloudSync.disable", role: .destructive) {
+                        Task { await perform { await session.setCloudSyncEnabled(false) } }
                     }
-                } else if !isTrustBoundaryPaused {
+                    .disabled(isWorking)
+                    .accessibilityIdentifier("settings.icloudSync.disable")
+                }
+
+                if CloudSyncSettingsPresentation.showsEnableAction(session.cloudSyncSnapshot) {
                     Button("settings.icloudSync.enable") {
                         showsEnableConfirmation = true
                     }
@@ -292,7 +332,7 @@ private struct CloudSyncSettingsView: View {
                     .accessibilityIdentifier("settings.icloudSync.enable")
                 }
 
-                if isTrustBoundaryPaused {
+                if CloudSyncSettingsPresentation.showsTrustRecoveryAction(session.cloudSyncSnapshot) {
                     Button("settings.icloudSync.recovery.rebuild") {
                         showsTrustRecoveryConfirmation = true
                     }
@@ -380,6 +420,7 @@ private struct CloudSyncSettingsView: View {
         case .pausedAccountChanged: "settings.icloudSync.status.accountChanged"
         case .pausedEncryptedDataReset: "settings.icloudSync.status.encryptedReset"
         case .pausedRemoteZoneDeleted: "settings.icloudSync.status.remoteZoneDeleted"
+        case .pausedForeignCurrency: "settings.icloudSync.status.foreignCurrency"
         case .deletingCloudData: "settings.icloudSync.status.deletingCloudData"
         case .failed: "settings.icloudSync.status.failed"
         }
@@ -390,18 +431,9 @@ private struct CloudSyncSettingsView: View {
         case .disabled, .starting, .ready, .syncing, .waitingForNetwork:
             false
         case .accountUnavailable, .quotaExceeded, .pausedAccountChanged,
-             .pausedEncryptedDataReset, .pausedRemoteZoneDeleted, .deletingCloudData, .failed:
+             .pausedEncryptedDataReset, .pausedRemoteZoneDeleted, .pausedForeignCurrency,
+             .deletingCloudData, .failed:
             true
-        }
-    }
-
-    private var isTrustBoundaryPaused: Bool {
-        switch session.cloudSyncSnapshot.status {
-        case .pausedAccountChanged, .pausedEncryptedDataReset, .pausedRemoteZoneDeleted:
-            true
-        case .disabled, .starting, .ready, .syncing, .waitingForNetwork,
-             .accountUnavailable, .quotaExceeded, .deletingCloudData, .failed:
-            false
         }
     }
 

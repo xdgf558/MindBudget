@@ -65,15 +65,17 @@ enum CloudSyncStatus: String, Codable, Equatable, Sendable {
     case pausedAccountChanged
     case pausedEncryptedDataReset
     case pausedRemoteZoneDeleted
+    case pausedForeignCurrency
     case deletingCloudData
     case failed
 
-    /// These states represent a changed trust boundary, not a retryable transport condition.
-    /// Only the explicit account re-consent flow or a future C4B-03 recovery decision may clear
-    /// them; delayed callbacks must never reopen transport.
+    /// Trust-boundary changes require their explicit recovery decision, not ordinary retry.
+    /// Foreign-currency local-only policy is also sticky: delayed callbacks or ordinary retry
+    /// must never reopen transport, even after the triggering local row is removed.
     var isStickyPause: Bool {
         switch self {
-        case .pausedAccountChanged, .pausedEncryptedDataReset, .pausedRemoteZoneDeleted:
+        case .pausedAccountChanged, .pausedEncryptedDataReset, .pausedRemoteZoneDeleted,
+             .pausedForeignCurrency:
             true
         case .disabled, .starting, .ready, .syncing, .waitingForNetwork,
              .accountUnavailable, .quotaExceeded, .deletingCloudData, .failed:
@@ -107,6 +109,7 @@ enum CloudSyncReasonCode: String, Codable, Equatable, Sendable {
     case serviceUnavailable
     case encryptedDataReset
     case remoteZoneDeleted
+    case foreignCurrencyLocalOnly
     case malformedRecord
     case unsupportedSchema
     case invalidIdentity
@@ -125,6 +128,8 @@ struct CloudSyncSnapshot: Equatable, Sendable {
     let pendingCount: Int
     let quarantinedCount: Int
     let cloudCopyMayExist: Bool
+    /// Independent of the primary trust-pause cause; never hides an account/key/zone boundary.
+    let blocksOrdinarySyncForForeignCurrency: Bool
 
     init(
         isEnabled: Bool,
@@ -132,7 +137,8 @@ struct CloudSyncSnapshot: Equatable, Sendable {
         reason: CloudSyncReasonCode?,
         pendingCount: Int,
         quarantinedCount: Int,
-        cloudCopyMayExist: Bool = false
+        cloudCopyMayExist: Bool = false,
+        blocksOrdinarySyncForForeignCurrency: Bool = false
     ) {
         self.isEnabled = isEnabled
         self.status = status
@@ -140,6 +146,7 @@ struct CloudSyncSnapshot: Equatable, Sendable {
         self.pendingCount = pendingCount
         self.quarantinedCount = quarantinedCount
         self.cloudCopyMayExist = cloudCopyMayExist
+        self.blocksOrdinarySyncForForeignCurrency = blocksOrdinarySyncForForeignCurrency
     }
 
     static let disabled = CloudSyncSnapshot(

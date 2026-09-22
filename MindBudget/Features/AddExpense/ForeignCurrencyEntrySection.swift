@@ -4,6 +4,7 @@ struct ForeignCurrencyEntrySection: View {
     @ObservedObject var model: ExpenseFormViewModel
     let accountingCurrency: String
     @Environment(\.existingPremiumEntryAccess) private var access
+    @Environment(\.cloudSyncSnapshot) private var cloudSyncSnapshot
     @Environment(\.locale) private var locale
     @Environment(\.calendar) private var calendar
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -25,7 +26,10 @@ struct ForeignCurrencyEntrySection: View {
                 modeButton("fx.enable", enabled: true)
                     .disabled(model.existingExpense?.foreignCurrency != nil
                               || !access.permitsNewForeignCurrency)
-                Text(access.permitsNewForeignCurrency ? "fx.help.offline" : "fx.help.pro")
+                Text(
+                    !access.permitsNewForeignCurrency ? "fx.help.pro"
+                        : requiresSyncOff ? "fx.help.sync" : "fx.help.offline"
+                )
                     .font(.footnote)
             }
         }
@@ -41,12 +45,17 @@ struct ForeignCurrencyEntrySection: View {
         }
     }
 
+    private var requiresSyncOff: Bool {
+        cloudSyncSnapshot.isEnabled && cloudSyncSnapshot.status != .deletingCloudData
+    }
+
     private func modeButton(_ key: LocalizedStringKey, enabled: Bool) -> some View {
         Button {
             focusedNumericField = nil
             model.setForeignCurrencyEnabled(
                 enabled, access: access, accountingCurrency: accountingCurrency,
-                locale: locale, calendar: calendar
+                locale: locale, calendar: calendar,
+                cloudSyncSnapshot: cloudSyncSnapshot
             )
         } label: {
             Text(key)

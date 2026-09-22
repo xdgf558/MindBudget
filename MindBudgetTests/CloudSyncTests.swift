@@ -13,6 +13,19 @@ private enum CloudSyncDelegateTaskContext {
 @MainActor
 struct CloudSyncTests {
     @Test
+    func syntheticProtocolAuthorityCannotReachNativeCloudDeletion() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).dataActor
+        try await actor.enableForeignCurrencyProtocolFixtures()
+        // Test the native admission policy without constructing CKContainer (which asserts its
+        // signing entitlement even before an account query). The static contract pins this gate
+        // as the native deletion entry's first statement, before engine/account/zone operations.
+        #expect(!CKSyncEngineAdapter.permitsCloudDeletion(
+            isProtocolFixture: await actor.usesForeignCurrencyProtocolFixtures))
+        #expect(CKSyncEngineAdapter.permitsCloudDeletion(isProtocolFixture: false))
+        #expect(try await actor.cloudSyncSnapshot().status == .disabled)
+    }
+
+    @Test
     func productionCloudSyncKeepsAppleBackgroundSchedulingEnabled() {
         #expect(CKSyncEngineAdapter.automaticallySync)
         #expect(CKSyncEngineAdapter.subscriptionID == "MindBudget.Sync.v1.subscription")
@@ -90,6 +103,143 @@ struct CloudSyncTests {
         #expect(service.snapshot.status == .pausedAccountChanged)
         #expect(probe.adapter.synchronizeCount == 1)
         await service.stop()
+    }
+
+    @Test
+    func foreignCurrencyEnableRejectionPublishesTheLocalOnlyReasonWithoutAnAdapter() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let actor = controller.makeDataActor()
+        let expense = makeExpense(amountMinorUnits: 100)
+        _ = try await actor.createExpense(expense)
+        try seedLegacyForeignCurrency(expenseID: expense.id, in: controller)
+        let probe = CloudSyncAdapterProbe()
+        let service = CloudSyncService(
+            dataActor: actor,
+            adapterFactory: { _ in probe.makeAdapter() },
+            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: false),
+            notificationCenter: NotificationCenter()
+        )
+
+        await service.setEnabled(true)
+        await service.retry()
+        await service.sceneDidBecomeActive()
+
+        #expect(!service.snapshot.isEnabled)
+        #expect(service.snapshot.status == .pausedForeignCurrency)
+        #expect(service.snapshot.reason == .foreignCurrencyLocalOnly)
+        #expect(probe.creationCount == 0)
+        #expect(probe.adapter.startCount == 0)
+        #expect(probe.adapter.synchronizeCount == 0)
+        #expect(probe.adapter.deleteCloudDataCount == 0)
+        #expect(try await actor.fetchExpenseSummaries().map(\.id) == [expense.id])
+        await service.stop()
+    }
+
+    @Test
+    func newlyObservedForeignCurrencyStopsAnActiveAdapterAndRetainsTransportState() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let actor = controller.makeDataActor()
+        _ = try await actor.setCloudSyncEnabled(true, at: fixedDate)
+        let expense = makeExpense(amountMinorUnits: 100)
+        _ = try await actor.createExpense(expense)
+        let serialization = Data("accepted-engine-ancestry".utf8)
+        try await actor.saveCloudSyncEngineState(serialization)
+        let before = try await actor.cloudSyncSnapshot()
+        let probe = CloudSyncAdapterProbe()
+        let service = CloudSyncService(
+            dataActor: actor,
+            adapterFactory: { _ in probe.makeAdapter() },
+            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: true),
+            notificationCenter: NotificationCenter()
+        )
+        await service.start()
+        #expect(probe.adapter.startCount == 1)
+
+        // Represents an upgraded persisted store or a just-retained incoming FX cohort, not an
+        // allowed current create/convert path. A native status callback only reloads the snapshot.
+        try seedLegacyForeignCurrency(expenseID: expense.id, in: controller)
+        await probe.adapter.onStatusChange?()
+
+        #expect(probe.adapter.stopCount == 1)
+        #expect(service.snapshot.isEnabled)
+        #expect(service.snapshot.status == .pausedForeignCurrency)
+        #expect(service.snapshot.reason == .foreignCurrencyLocalOnly)
+        #expect(service.snapshot.cloudCopyMayExist)
+        #expect(service.snapshot.pendingCount == before.pendingCount)
+        #expect(try await actor.cloudSyncEngineStateData() == serialization)
+        await service.retry()
+        await service.sceneDidBecomeActive()
+        #expect(probe.creationCount == 1)
+        #expect(probe.adapter.synchronizeCount == 0)
+        #expect(probe.adapter.deleteCloudDataCount == 0)
+        #expect(!(await service.recoverFromTrustBoundary(.rebuildCloudFromLocal)))
+        #expect(service.snapshot.status == .pausedForeignCurrency)
+        await service.stop()
+    }
+
+    @Test
+    func existingForeignCurrencyPausesStartupButDoesNotInitiateOrBlockExplicitCloudDeletion() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let actor = controller.makeDataActor()
+        _ = try await actor.setCloudSyncEnabled(true, at: fixedDate)
+        let expense = makeExpense(amountMinorUnits: 100)
+        _ = try await actor.createExpense(expense)
+        try seedLegacyForeignCurrency(expenseID: expense.id, in: controller)
+        let probe = CloudSyncAdapterProbe()
+        probe.adapter.deleteHandler = {
+            try? await actor.completeCloudDeletion()
+            return .deleted
+        }
+        let service = CloudSyncService(
+            dataActor: actor,
+            adapterFactory: { _ in probe.makeAdapter() },
+            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: true),
+            notificationCenter: NotificationCenter()
+        )
+
+        await service.start()
+        await service.retry()
+        #expect(service.snapshot.status == .pausedForeignCurrency)
+        #expect(probe.creationCount == 0)
+        #expect(probe.adapter.deleteCloudDataCount == 0)
+
+        #expect(await service.deleteCloudData() == .deleted)
+        #expect(probe.creationCount == 1)
+        #expect(probe.adapter.startCount == 0)
+        #expect(probe.adapter.synchronizeCount == 0)
+        #expect(probe.adapter.deleteCloudDataCount == 1)
+        #expect(!service.snapshot.cloudCopyMayExist)
+        #expect(try await actor.fetchExpenseSummaries().map(\.id) == [expense.id])
+        let context = ModelContext(controller.container)
+        #expect(try context.fetchCount(FetchDescriptor<ExpenseForeignCurrencyMetadata>()) == 1)
+        await service.stop()
+    }
+
+    @Test
+    func ordinarySyncWithoutForeignCurrencyStillStartsRetriesAndForegrounds() async throws {
+        let actor = try DataController(isStoredInMemoryOnly: true).makeDataActor()
+        _ = try await actor.createExpense(makeExpense(amountMinorUnits: 100))
+        let probe = CloudSyncAdapterProbe()
+        let service = CloudSyncService(
+            dataActor: actor,
+            adapterFactory: { _ in probe.makeAdapter() },
+            retentionStore: TestCloudSyncRetentionStore(cloudCopyMayExist: false),
+            notificationCenter: NotificationCenter()
+        )
+
+        await service.setEnabled(true)
+        await service.retry()
+        await service.sceneDidBecomeActive()
+
+        #expect(service.snapshot.isEnabled)
+        #expect(!service.snapshot.status.isStickyPause)
+        #expect(probe.creationCount == 1)
+        #expect(probe.adapter.startCount == 1)
+        #expect(probe.adapter.synchronizeCount == 2)
+        #expect(probe.adapter.stopCount == 0)
+        #expect(probe.adapter.deleteCloudDataCount == 0)
+        await service.stop()
+        #expect(probe.adapter.stopCount == 1)
     }
 
     @Test
@@ -1652,6 +1802,20 @@ struct CloudSyncTests {
         Date(timeIntervalSince1970: 1_784_851_200)
     }
 
+    private func seedLegacyForeignCurrency(expenseID: UUID, in controller: DataController) throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        let value = try ExpenseForeignCurrency(
+            original: Money(minorUnits: 100, currencyCode: "EUR"),
+            rate: ForeignCurrencyRate(numerator: 1, denominator: 1),
+            selectedDate: fixedDate,
+            calendar: calendar
+        )
+        let context = ModelContext(controller.container)
+        context.insert(ExpenseForeignCurrencyMetadata(expenseID: expenseID, value: value))
+        try context.save()
+    }
+
     private func waitForPhysicalCloudExpense(
         id: UUID,
         amountMinorUnits: Int64,
@@ -1791,6 +1955,7 @@ final class TestCloudSyncAdapter: CloudSyncEngineAdapting {
     private(set) var startCount = 0
     private(set) var synchronizeCount = 0
     private(set) var deleteCloudDataCount = 0
+    private(set) var stopCount = 0
     var deletionOutcome = CloudSyncCloudDeletionOutcome.deleted
     var deleteHandler: (@MainActor () async -> CloudSyncCloudDeletionOutcome)?
     var onSynchronize: (@MainActor () -> Void)?
@@ -1805,7 +1970,7 @@ final class TestCloudSyncAdapter: CloudSyncEngineAdapting {
         if let deleteHandler { return await deleteHandler() }
         return deletionOutcome
     }
-    func stop() async {}
+    func stop() async { stopCount += 1 }
 }
 
 @MainActor

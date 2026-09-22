@@ -9,6 +9,74 @@ extension DataActor {
         guard ExistingPremiumEntryAccess(featureAccess: featureAccess).permitsNewForeignCurrency else {
             throw ForeignCurrencyError.requiresProAccess
         }
+        if !usesForeignCurrencyProtocolFixtures,
+           let control = try fetchCloudSyncControl(), control.isEnabled,
+           control.statusRaw != CloudSyncStatus.deletingCloudData.rawValue {
+            throw ForeignCurrencyError.syncRequiresCompanionProtocol
+        }
+    }
+
+    var usesForeignCurrencyProtocolFixtures: Bool {
+        #if DEBUG
+        foreignCurrencyProtocolFixturesEnabled
+        #else
+        false
+        #endif
+    }
+
+    /// A companion may survive only in transport ancestry or an unapplied inbox. A missing
+    /// visible expense is not permission to send its frozen, FX-unaware parent by itself.
+    func hasForeignCurrencySyncFootprint() throws -> Bool {
+        if try modelContext.fetchCount(FetchDescriptor<ExpenseForeignCurrencyMetadata>()) > 0 { return true }
+        let kind = CloudSyncEntityType.expenseForeignCurrencyMetadata.rawValue
+        func isCompanion(_ name: String, _ data: Data? = nil) -> Bool {
+            name.hasPrefix(kind + "/")
+                || data.flatMap { try? CloudSyncCodec.decodeEnvelope($0) }?.entityType
+                    == .expenseForeignCurrencyMetadata
+        }
+        if try modelContext.fetch(FetchDescriptor<CloudSyncRecordMetadata>()).contains(where: {
+            $0.entityTypeRaw == kind || isCompanion($0.recordName)
+        }) { return true }
+        if try modelContext.fetch(FetchDescriptor<CloudSyncOutboxItem>()).contains(where: {
+            $0.entityTypeRaw == kind || isCompanion($0.recordName, $0.envelopeData)
+        }) { return true }
+        return try modelContext.fetch(FetchDescriptor<CloudSyncInboxItem>()).contains(where: {
+            isCompanion($0.recordName, $0.envelopeData)
+        })
+    }
+
+    func foreignCurrencyBlocksOrdinarySync() throws -> Bool {
+        guard !usesForeignCurrencyProtocolFixtures else { return false }
+        let control = try fetchCloudSyncControl()
+        // A separately confirmed privacy erase must remain possible. This never admits upload.
+        if control?.statusRaw == CloudSyncStatus.deletingCloudData.rawValue { return false }
+        return try control?.statusRaw == CloudSyncStatus.pausedForeignCurrency.rawValue
+            || hasForeignCurrencySyncFootprint()
+    }
+
+    @discardableResult
+    func reconcileForeignCurrencySyncPause(persist: Bool = true) throws -> Bool {
+        guard try foreignCurrencyBlocksOrdinarySync(),
+              let control = try fetchCloudSyncControl(), control.isEnabled else { return false }
+        let status = CloudSyncStatus(rawValue: control.statusRaw) ?? .failed
+        // Do not erase a prior account/key/zone trust boundary to replace its explanation.
+        guard !status.isStickyPause else { return false }
+        control.statusRaw = CloudSyncStatus.pausedForeignCurrency.rawValue
+        control.lastReasonRaw = CloudSyncReasonCode.foreignCurrencyLocalOnly.rawValue
+        control.updatedAt = Date()
+        if persist { try modelContext.save() }
+        return true
+    }
+
+    /// Rechecked immediately before native transport. Even the in-memory fixture escape hatch
+    /// cannot query an account or hand its synthetic records to CKSyncEngine.
+    func permitsOrdinaryCloudTransport() throws -> Bool {
+        guard !usesForeignCurrencyProtocolFixtures else { return false }
+        try reconcileForeignCurrencySyncPause()
+        guard let control = try fetchCloudSyncControl(), control.isEnabled,
+              !(CloudSyncStatus(rawValue: control.statusRaw) ?? .failed).isStickyPause,
+              control.statusRaw != CloudSyncStatus.deletingCloudData.rawValue else { return false }
+        return try !hasForeignCurrencySyncFootprint()
     }
 
     func foreignCurrency(for expense: Expense) throws -> ExpenseForeignCurrency? {

@@ -27,7 +27,9 @@ extension DataActor {
     private static var cloudSyncConsentVersion: Int { 1 }
 
     func cloudSyncSnapshot() throws -> CloudSyncSnapshot {
+        try reconcileForeignCurrencySyncPause()
         let control = try fetchCloudSyncControl()
+        let blockedByLocalFX = try foreignCurrencyBlocksOrdinarySync()
         let pendingOutboxNames = Set(try modelContext.fetch(
             FetchDescriptor<CloudSyncOutboxItem>(
                 predicate: #Predicate { $0.statusRaw == "pending" }
@@ -51,7 +53,8 @@ extension DataActor {
                 status: .disabled,
                 reason: nil,
                 pendingCount: pendingCount,
-                quarantinedCount: quarantinedCount
+                quarantinedCount: quarantinedCount,
+                blocksOrdinarySyncForForeignCurrency: blockedByLocalFX
             )
         }
         return CloudSyncSnapshot(
@@ -59,14 +62,14 @@ extension DataActor {
             status: CloudSyncStatus(rawValue: control.statusRaw) ?? .failed,
             reason: control.lastReasonRaw.flatMap(CloudSyncReasonCode.init(rawValue:)),
             pendingCount: pendingCount,
-            quarantinedCount: quarantinedCount
+            quarantinedCount: quarantinedCount,
+            blocksOrdinarySyncForForeignCurrency: blockedByLocalFX
         )
     }
 
     @discardableResult
     func setCloudSyncEnabled(_ enabled: Bool, at date: Date = Date()) throws -> CloudSyncSnapshot {
         do {
-            if enabled { try validateForeignCurrencySyncFacts() }
             let existingControl = try fetchCloudSyncControl()
             let control = existingControl ?? CloudSyncControl(
                 id: Self.cloudSyncControlID,
@@ -92,6 +95,30 @@ extension DataActor {
             // Cloud-wide deletion is a durable privacy operation. A generic enable/disable tap
             // cannot turn it back into ordinary sync or silently abandon the pending zone delete.
             if isDeletingCloudData {
+                return try cloudSyncSnapshot()
+            }
+            if enabled, try foreignCurrencyBlocksOrdinarySync() {
+                let status = CloudSyncStatus(rawValue: control.statusRaw) ?? .failed
+                if !status.isStickyPause {
+                    control.statusRaw = CloudSyncStatus.pausedForeignCurrency.rawValue
+                    control.lastReasonRaw = CloudSyncReasonCode.foreignCurrencyLocalOnly.rawValue
+                    control.updatedAt = date
+                }
+                try modelContext.save()
+                return try cloudSyncSnapshot()
+            }
+            if enabled { try validateForeignCurrencySyncFacts() }
+            if !enabled, try foreignCurrencyBlocksOrdinarySync() {
+                control.isEnabled = false
+                let previousStatus = CloudSyncStatus(rawValue: control.statusRaw) ?? .failed
+                if !previousStatus.isStickyPause || previousStatus == .pausedForeignCurrency {
+                    control.statusRaw = CloudSyncStatus.disabled.rawValue
+                    control.lastReasonRaw = nil
+                }
+                // In particular, the old account-change disable reset must not erase the only
+                // surviving copy of an FX companion in an inbox/outbox or its ancestry.
+                control.updatedAt = date
+                try modelContext.save()
                 return try cloudSyncSnapshot()
             }
             // An encrypted-key reset needs a separately accepted recovery decision owned by
@@ -151,6 +178,10 @@ extension DataActor {
     }
 
     func bindCloudSyncAccount(identifierHash: String, at date: Date = Date()) throws -> Bool {
+        if try foreignCurrencyBlocksOrdinarySync() {
+            try reconcileForeignCurrencySyncPause()
+            return false
+        }
         guard !identifierHash.isEmpty, let control = try fetchCloudSyncControl(), control.isEnabled else {
             return false
         }
@@ -183,6 +214,10 @@ extension DataActor {
         reason: CloudSyncReasonCode?,
         at date: Date = Date()
     ) throws {
+        if try foreignCurrencyBlocksOrdinarySync() {
+            try reconcileForeignCurrencySyncPause()
+            return
+        }
         guard let control = try fetchCloudSyncControl() else { return }
         let currentStatus = CloudSyncStatus(rawValue: control.statusRaw) ?? .failed
         // A sticky pause is a trust-boundary transition. Ordinary network/account callbacks can
@@ -267,6 +302,10 @@ extension DataActor {
     /// genesis only after the person confirms rebuilding the private cloud copy.
     func recoverCloudSyncFromLocalAuthority(at date: Date = Date()) throws -> CloudSyncSnapshot {
         do {
+            if try foreignCurrencyBlocksOrdinarySync() {
+                try reconcileForeignCurrencySyncPause()
+                return try cloudSyncSnapshot()
+            }
             guard let control = try fetchCloudSyncControl(),
                   (CloudSyncStatus(rawValue: control.statusRaw) ?? .failed).isStickyPause else {
                 return try cloudSyncSnapshot()
@@ -292,6 +331,10 @@ extension DataActor {
     /// A successful transport pass may finish after an account/key-reset event was delivered.
     /// Never let that older success overwrite a newer fail-closed pause or transport reason.
     func completeCloudSyncPass(at date: Date = Date()) throws {
+        guard try !foreignCurrencyBlocksOrdinarySync() else {
+            try reconcileForeignCurrencySyncPause()
+            return
+        }
         guard let control = try fetchCloudSyncControl(), control.isEnabled,
               control.statusRaw == CloudSyncStatus.syncing.rawValue else {
             return
@@ -308,6 +351,7 @@ extension DataActor {
         recordName: String,
         at date: Date = Date()
     ) throws {
+        guard try !foreignCurrencyBlocksOrdinarySync() else { return }
         if let outbox = try fetchCloudSyncOutbox(recordName: recordName) {
             outbox.statusRaw = CloudSyncOutboxStatus.blockedByConflict.rawValue
             outbox.updatedAt = date
@@ -328,6 +372,7 @@ extension DataActor {
     }
 
     func saveCloudSyncEngineState(_ data: Data, at date: Date = Date()) throws {
+        guard try !foreignCurrencyBlocksOrdinarySync() else { return }
         var descriptor = FetchDescriptor<CloudSyncEngineState>(
             predicate: #Predicate { $0.id == "private-zone-v1" }
         )
@@ -348,7 +393,11 @@ extension DataActor {
     }
 
     func pendingCloudSyncRecordNames() throws -> [String] {
-        try modelContext.fetch(
+        if try foreignCurrencyBlocksOrdinarySync() {
+            try reconcileForeignCurrencySyncPause()
+            return []
+        }
+        return try modelContext.fetch(
             FetchDescriptor<CloudSyncOutboxItem>(
                 predicate: #Predicate { $0.statusRaw == "pending" },
                 sortBy: [
@@ -360,6 +409,7 @@ extension DataActor {
     }
 
     func pendingCloudSyncRecord(named recordName: String) throws -> CloudSyncPendingRecord? {
+        guard try !foreignCurrencyBlocksOrdinarySync() else { return nil }
         guard let outbox = try fetchCloudSyncOutbox(recordName: recordName),
               outbox.statusRaw == CloudSyncOutboxStatus.pending.rawValue else {
             return nil
@@ -377,6 +427,7 @@ extension DataActor {
         encodedSystemFields: Data,
         at date: Date = Date()
     ) throws {
+        guard try !foreignCurrencyBlocksOrdinarySync() else { return }
         guard let outbox = try fetchCloudSyncOutbox(recordName: recordName),
               let envelope = try? CloudSyncCodec.decodeEnvelope(outbox.envelopeData) else {
             return
@@ -410,10 +461,18 @@ extension DataActor {
         receivedAt: Date = Date()
     ) throws {
         guard let control = try fetchCloudSyncControl(), control.isEnabled else { return }
+        guard control.statusRaw != CloudSyncStatus.deletingCloudData.rawValue else { return }
         do {
+            let companionArrived = records.contains {
+                $0.recordName.hasPrefix("expenseForeignCurrencyMetadata/")
+                    || $0.envelopeData.flatMap { try? CloudSyncCodec.decodeEnvelope($0) }?.entityType
+                        == .expenseForeignCurrencyMetadata
+            }
+            let preserveOnly = try !usesForeignCurrencyProtocolFixtures
+                && (companionArrived || foreignCurrencyBlocksOrdinarySync())
             for record in records {
                 let status: CloudSyncInboxStatus = record.wasPhysicallyDeleted ? .quarantined : .pending
-                if record.wasPhysicallyDeleted {
+                if record.wasPhysicallyDeleted && !preserveOnly {
                     if let outbox = try fetchCloudSyncOutbox(recordName: record.recordName) {
                         outbox.statusRaw = CloudSyncOutboxStatus.blockedByConflict.rawValue
                         outbox.updatedAt = receivedAt
@@ -438,6 +497,7 @@ extension DataActor {
                     )
                 )
             }
+            try reconcileForeignCurrencySyncPause(persist: false)
             try modelContext.save()
         } catch {
             modelContext.rollback()
@@ -455,6 +515,10 @@ extension DataActor {
         // Erasure is not ordinary upload. It must not block any local financial write.
         guard control.statusRaw != CloudSyncStatus.deletingCloudData.rawValue else { return false }
         modelContext.processPendingChanges()
+        if try foreignCurrencyBlocksOrdinarySync() {
+            // Save this state atomically with the local write; do not save a half-written ledger.
+            return try reconcileForeignCurrencySyncPause(persist: false)
+        }
         var changesByRecordName: [String: CloudSyncMutationProjection] = [:]
         for model in modelContext.insertedModelsArray + modelContext.changedModelsArray {
             if let projection = try cloudSyncProjection(for: model, operation: .upsert) {
@@ -474,6 +538,7 @@ extension DataActor {
     }
 
     private func stageAllCurrentFacts(at date: Date) throws -> Bool {
+        guard try !foreignCurrencyBlocksOrdinarySync() else { return false }
         // Covers both ordinary enable and the separate trust-boundary recovery/reupload entry.
         try validateForeignCurrencySyncFacts()
         let models = try allCloudSyncBusinessModels()
@@ -623,7 +688,7 @@ extension DataActor {
         return true
     }
 
-    private func fetchCloudSyncControl() throws -> CloudSyncControl? {
+    func fetchCloudSyncControl() throws -> CloudSyncControl? {
         var descriptor = FetchDescriptor<CloudSyncControl>(
             predicate: #Predicate { $0.id == "primary" }
         )

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 8,
+  "schemaVersion": 9,
   "phase": {
     "id": "FX-01",
     "status": "IN_PROGRESS",
@@ -140,7 +140,30 @@
     "futureEntityCount": 13,
     "positionAfter": "expense",
     "expensePayloadUnchanged": true,
+    "foreignCurrencyDeliveryAdmission": "syntheticProtocolOnly",
     "coordinatedContract": "Docs/Commercialization/ICLOUD_SYNC_CONTRACT.md"
+  },
+  "localOnlySyncContract": {
+    "scope": "ledgerLevelMutualExclusion",
+    "enabledOrdinarySyncAllowsNewOrConvertedFX": false,
+    "existingFXAllowsEnableOrRecovery": false,
+    "pauseStatus": "pausedForeignCurrency",
+    "pauseReason": "foreignCurrencyLocalOnly",
+    "pauseRetainsOptInAndFinancialData": true,
+    "pauseRetainsQueueAndEngineAncestry": true,
+    "pausePreservesOtherStickyCauses": true,
+    "independentSnapshotFlag": "blocksOrdinarySyncForForeignCurrency",
+    "companionFootprint": ["localMetadata", "acceptedMetadata", "outbox", "inbox"],
+    "incomingCompanionBatch": "retainEntireBatchBeforeFinancialApplication",
+    "legacyParentFirstArrival": "unmarkedFrozenParentMayApplyBeforeCompanionThenPause",
+    "ordinaryLedgerWithoutFX": "unchanged",
+    "explicitCloudDeletion": "independentConfirmedPrivacyOperation",
+    "protocolFixtureCompileGuard": "DEBUG",
+    "protocolFixtureStoreBoundary": "allConfigurationsInMemoryOnly",
+    "protocolFixtureCallers": "unitTestsOnly",
+    "protocolFixtureNativeTransportAllowed": false,
+    "localProAndExpiredStewardship": "unchanged",
+    "physicalProbe": "deferredWithoutNewAuthorization"
   },
   "sourceBoundary": {
     "expenseModel": "MindBudget/Models/Expense.swift",

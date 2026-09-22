@@ -2,7 +2,39 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
-Current authorized scope: retain the post-#128 not-installed NON_PASS and implement one strict
+Current owner disposition (2026-09-22): prioritize local foreign-currency recording and defer
+foreign-currency iCloud delivery and the physical-probe workflow. Stop recurring evidence recovery,
+v4 preparation, request refresh and phone-authorization prompts until explicit owner re-entry.
+No device operation, cloud deletion, App uninstall or reservation/claim cleanup is authorized.
+Keep local recording, saved accounting authority, stewardship and CSV requirements. The owner then
+approved ledger-level FX/iCloud exclusion: explicitly disable ordinary sync before new FX; existing
+FX or durable companion history blocks enable/recovery. Legacy coexistence pauses transport without
+revoking opt-in or deleting facts/queues. The current implementation candidate enforces this in the
+actor, service/native adapter and localized entry/settings UI; validation and independent acceptance
+are still pending. Old paired-codec tests remain explicitly Debug/in-memory-only, with real transport
+denied. No-FX ordinary sync and separately confirmed cloud erasure retain their own behavior.
+The frozen parent cannot identify old remote FX before its companion arrives; this is not real-cloud
+or mixed-version acceptance. See the 2026-09-22 decision and scope amendment in
+`Docs/FX_01_MANUAL_CURRENCY_PLAN.md`. D stays In Progress; E and Insights/share remain unentered.
+
+Prior offline preparation checkpoint (now deferred): PR #129 reviewed head `b9553fe` was independently accepted
+and owner-authorized merged as `2cf0e214`. Its complete-local/native acceptance is recorded in
+the accepted PR review; hosted `34580440549` attempt 1 has successful ordinary, FX and join jobs.
+These are historical accepted results, not newly rerun or re-audited evidence.
+
+The deferred preparation could not locate the original signed package and eight bound private evidence
+files, including the original reservation and prior claim. Previous temporary worktree directories
+are absent; scoped local searches have not located those inputs. This is not proof that no backup
+exists. Do not recreate the evidence from public hashes, rebuild/re-sign a substitute package,
+generate a fresh run/state root or reuse a consumed approval. Restore and verify the original
+inputs only if the owner later explicitly resumes this workflow; any future request still needs
+independent review and fresh exact live authorization. No phone command was issued. D remains In Progress with
+four open items; E and Insights/share remain unentered. `Docs/TASKS.md` owns the current checklist;
+`Tools/FXCloudProbe/README.md` retains the exact continuation contract and source-freeze history.
+
+## Historical #129 source-freeze context — accepted in merge 2cf0e214
+
+At that checkpoint, scope was to retain the post-#128 not-installed NON_PASS and implement one strict
 installed-package continuation. PR #128 reviewed head `716874a` passed complete local validation,
 hosted `34563823026` attempt 1 and native audit, then merged as `16635b5`. Its post-merge exact
 version-3 request was independently reviewed and owner-approved for the unchanged signed package
@@ -16,7 +48,7 @@ access because it lacked explicit `DEVELOPER_DIR`; that preparation record is re
 explicit-Xcode invocation installed the exact package without launch. Two bounded read-only checks
 confirmed exactly one matching bundle and no probe process. No CloudKit operation followed.
 
-The current implementation candidate adds version 4. It binds the exact approved version-3 file,
+The implementation candidate added version 4. It binds the exact approved version-3 file,
 its NON_PASS result and prior claim; the exact native not-installed, installation, one-App and
 empty-process results; the unchanged original reservation; and the prior controller. It preserves
 the same run/package/device/operation, forbids deletion and appends a new controller-specific claim
@@ -24,20 +56,20 @@ only after local evidence and toolchain validation. Its first later device comma
 one matching installed App before the existing process/launch/resume/deadline/collection sequence.
 No install, retry, reset or cleanup was added to the controller.
 
-The changed controller still requires exact-head complete local/hosted/native validation,
-independent review, merge, a new exact post-merge version-4 file and a new explicit owner live
-authorization. The installed App and working PENDING file are not permission. D remains In
-Progress; no D completion, E entry or Insights sharing is authorized. `Tools/FXCloudProbe/README.md`
-owns the detailed contract.
+At source freeze, controller validation/review/merge and a new exact post-merge version-4 request
+were pending. #129 subsequently completed implementation acceptance and merge as recorded above;
+the new request and live authorization remain outstanding. The historical installed-App observation
+and working PENDING file are not current permission. `Tools/FXCloudProbe/README.md` owns the contract.
 
 Exact source freezes `0a37b88`, `f5c5992` and `673d9ae` are retained Dashboard-gate NON_PASS results
 at `533.066167`, `567.900125` and `588.157625 ms > 500 ms`; none produced ordinary/FX acceptance
 bundles and none may be rerun to select a green sample. Reserve-only and clean-descriptor product
-candidates are withdrawn, so final `DataActor.swift` equals reviewed main. The current narrow fix
-moves the unchanged one-shot benchmark ahead of mandatory Release whole-module compilation while
+candidates were withdrawn, so final `DataActor.swift` equalled reviewed main. The accepted narrow fix
+moved the unchanged one-shot benchmark ahead of mandatory Release whole-module compilation while
 keeping it after Debug build-for-testing and destination readiness. Release build, 10,000-row test,
-500 ms ceiling, zero retry and all ordinary/FX gates remain. A new frozen head must still pass
-complete local/hosted/native gates before review. No phone access is authorized.
+500 ms ceiling, zero retry and all ordinary/FX gates remained. Final head `b9553fe` subsequently
+passed the required gates; its accepted 498.533583 ms sample does not explain or reclassify any
+earlier non-pass. No phone access is authorized by that acceptance.
 
 #124 was independently accepted and owner-authorized merged as `cfee88b`, second parent
 `c478912`. Its complete local exit 0 measured 469.826917 ms / unchanged 500 ms (one pass,

@@ -2,6 +2,104 @@
 
 Current FX-01D closeout: `Docs/FX_01D_CLOSEOUT.md` (implementation merged; D In Progress; E unentered).
 
+## 2026-09-22 — Implement approved local FX / iCloud exclusion as one batch
+
+Owner approved the concrete ledger-level coexistence rule after the earlier deferral-only record.
+Implemented actor-authoritative create/convert, enable/recovery, queue/replay/conflict and native
+transport gates; localized existing entry/settings surfaces, preserving local stewardship and
+explicit privacy erasure. Product Design informed the scoped reuse of existing controls/copy,
+not a redesign or network permission. Contract/gate and default-mode regressions are consolidated
+with the change; old companion mechanics remain explicit DEBUG/in-memory synthetic fixtures,
+denied by real transport. `FX_01_LOCAL_ONLY_DELIVERY.md` owns the policy, limits and development
+evidence ledger (including compile failure, sandbox failure and the new entitlement-assertion
+test NON_PASS). Complete local/hosted/native acceptance is still pending at this source freeze.
+
+No phone/probe/CloudKit operation, destructive cleanup, stage completion or next-feature entry.
+Instruction cleanup and earlier owner-approved scope edits in this worktree are preserved.
+
+## 2026-09-22 — Owner defers physical preparation and prioritizes local FX
+
+Owner confirmed the proposed local-first FX disposition and explicitly requested no more repeated
+physical-device preparation for now. Recorded the decision, current scope/checklist and pause
+notices at the probe entrypoints. The earlier request for a backup location is no longer an active
+task: evidence recovery and v4 generation/review/refresh are deferred until owner re-entry.
+
+This is scope/documentation work only. The merged companion transport is still present; no claim
+that runtime FX sync has already been disabled is made. Requested a bounded read-only assessment
+of the existing enable/write/queue/import/recovery seams so the local-only boundary can be delivered
+coherently with its contracts and tests. No product/controller changes, tests on a phone, CloudKit
+requests, file/state deletion, uninstall, D completion or next-phase entry occurred. Original
+non-passes and accepted historical evidence are retained.
+
+The bounded source assessment found no effective local-only switch: the old sync error remains
+only as a declaration/copy mapping, while enable/recovery, mutation staging, retained outbox and
+inbox replay still carry FX. Filtering only companions would leave accounting parents and old
+queued state exposed. A ledger-level FX/sync exclusion is a smaller possible policy than
+record-selective sync, but it affects user capabilities and is not selected or implemented by
+this pause. Preserve data and resolve that material coexistence choice in the consolidated batch.
+Diff whitespace, FX static contract and commercialization-document checks pass; no runtime code
+changed and no full simulator or hosted run is claimed for this scope record.
+
+## 2026-09-22 — Preserve instruction edits and resume offline post-merge preparation
+
+Verified GitHub main and PR #129 merge at `2cf0e214cea687ecb2d498eafd93df519eca0dd3`, reviewed
+second parent `b9553fe3cd3c08ac3666b9f86cce4fe937f7677e`, merged 2026-09-11T10:19:30Z.
+Hosted `34580440549` attempt 1 has all three jobs successful. Complete-local/native evidence
+and the no-P1/P2 independent acceptance are the previously accepted PR/review record; no new
+test execution or independent artifact audit is claimed here.
+
+The local checkout was still detached at `8e57283` with the owner's instruction cleanup in
+AGENTS.md and this log. Preserved both in a retained Git stash, created a local preparation
+branch from accepted main, restored the exact optimized AGENTS.md and carried the 2026-09-14
+entry forward without replacing newer history. No user changes or Git recovery state were
+discarded. Global Skill edits and their existing backup were not changed in this operation.
+
+The original temporary worktree paths are absent. Scoped filename searches in project output,
+temporary, dedicated application-support, probe DerivedData and likely backup locations did
+not locate the exact signed App or required private approval/native/reservation/claim inputs;
+some unrelated macOS-managed temporary directories were inaccessible and were not bypassed.
+This is an input-availability gap, not proof of deletion or a new runtime NON_PASS. Requested
+the owner's backup location. No PENDING file was generated, no original state was recreated,
+and no phone/account/CloudKit query, installation, launch/resume, cleanup or re-signing occurred.
+
+Read-only source review confirms version-4 preparation performs local signature/evidence checks
+and writes only a new PENDING file; it does not create a continuation claim or contact a device.
+The original signed package, eight raw bound files and original installation path must still
+validate. Public SHA commitments or a rebuilt package cannot replace those inputs. Current
+memory/checklist now distinguish accepted #129 implementation from blocked request preparation.
+No D completion checkbox, E or Insights/share entry was changed.
+
+Checks on this instruction/document-only working tree passed: `git diff --check`,
+`python3 -B Scripts/fx01_contract.py` and `Scripts/check-commercialization-docs.sh`.
+AGENTS.md is byte-identical to the preserved owner-authorized edit; product, test, script,
+controller, service and configuration paths have no diff from accepted main. No full simulator
+validation or new hosted run was needed or claimed for this offline documentation update.
+
+## 2026-09-14 — Owner-authorized instruction and Skill scope cleanup
+
+Updated AGENTS.md to route reading through current scope/active-phase sections and relevant
+decision IDs instead of loading entire historical logs. Consolidated final code acceptance under
+the existing complete validator, retained phase-specific local/hosted/native-review requirements,
+and clarified proportional checks for prose-only work. Material evidence is recorded once in its
+owning track; pure status queries and unchanged polling no longer create mandatory log edits.
+Routine reversible steps reuse valid scope authorization, while sensitive operations, one-use
+approvals and exact device/package/controller bindings retain their existing boundaries.
+
+Updated 11 locally installed Skill entrypoints outside this repository, with original-file backups:
+cloudflare, agents-sdk, sandbox-sdk, durable-objects, cloudflare-email-service,
+workers-best-practices, wrangler, web-perf, mengtofrontend, openai-docs and imagegen.
+Narrowed provider-specific triggers, conditionalized installation/live-account prerequisites,
+preferred pinned-version context and relevant references, and provided available-tool fallbacks.
+Removed the unsupported Cloudflare frontmatter references key; its body still routes to the
+existing references. System-supplied entrypoint edits are local customizations that updates may
+replace. Skill-creator's guidance informed these scoped edits; no product implementation changed.
+
+Validation: all 11 modified Skill entrypoints pass the bundled quick validator. Its missing
+PyYAML dependency was installed only into a temporary validation directory. The commercialization
+documentation gate and git diff whitespace check pass. No Swift/runtime behavior changed, so
+no simulator/full product run was performed for this instruction-only task. No phase status or
+release/device authorization was advanced; existing historical evidence is retained.
+
 ## 2026-09-11 — Retain three performance NON_PASS results; isolate the wall-clock gate
 
 The version-4 installed-continuation source was frozen as

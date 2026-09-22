@@ -1,5 +1,11 @@
 # FX-01D independent post-merge closeout
 
+Current scope amendment (2026-09-22): owner approved local FX / ordinary iCloud ledger-level
+exclusion and deferred physical-probe/cloud delivery work. `FX_01_MANUAL_CURRENCY_PLAN.md`
+owns that new implementation candidate; this packet retains the historical #118 acceptance
+sequence and four non-passes. Nothing below is new runtime proof for the local-only candidate,
+completion of the original cloud obligations, or D Done / E / Insights-share authorization.
+
 Status: **PENDING_INDEPENDENT_REVIEW_AND_MERGE; D In Progress; FX-01E unentered.**
 
 The owner authorized this separate documentation closeout after PR #117 merged. This is the

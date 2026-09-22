@@ -1,6 +1,10 @@
 # FX-01D single-device CloudKit isolation proposal
 
-Status: VERSION-4 INSTALLED CONTINUATION CANDIDATE — #128 merged as `16635b5`; its exact
+Status: OWNER-DEFERRED (2026-09-22). Physical-probe preparation and execution are paused;
+local FX delivery is prioritized. See `Docs/FX_01_MANUAL_CURRENCY_PLAN.md` and the 2026-09-22
+decision. No backup search, v4 request refresh, device operation or cleanup without re-entry.
+
+Historical source-freeze status: VERSION-4 INSTALLED CONTINUATION CANDIDATE — #128 merged as `16635b5`; its exact
 version-3 invocation stopped before resume because the dedicated App was not installed. The exact
 App is now installed under separate authorization and confirmed not running. Version-4 binding,
 validation and review are pending; no App/CloudKit execution has occurred.

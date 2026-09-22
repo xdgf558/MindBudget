@@ -113,7 +113,10 @@ final class CloudSyncService: CloudSyncServicing {
                 await stopAdapter()
             }
         } catch {
-            await publishFailure(.localValidationFailed)
+            // A policy rejection can persist a useful pause while rejecting the request. Do
+            // not replace that durable reason with a generic validation failure.
+            await reloadSnapshot()
+            if !snapshot.status.isStickyPause { await publishFailure(.localValidationFailed) }
         }
     }
 
@@ -174,6 +177,7 @@ final class CloudSyncService: CloudSyncServicing {
         do {
             await stopAdapter()
             snapshot = snapshotWithRetention(try await dataActor.recoverCloudSyncFromLocalAuthority())
+            publishSnapshot()
             guard snapshot.isEnabled, snapshot.status == .starting else { return false }
             retentionStore.cloudCopyMayExist = true
             publishSnapshot()
@@ -194,7 +198,10 @@ final class CloudSyncService: CloudSyncServicing {
     }
 
     private func synchronizeAdapterIfPermitted() async {
-        guard snapshot.permitsCloudTransport else { return }
+        guard snapshot.permitsCloudTransport else {
+            await stopAdapter()
+            return
+        }
         if snapshot.status == .deletingCloudData {
             _ = await continueCloudDeletion()
             return
@@ -207,6 +214,11 @@ final class CloudSyncService: CloudSyncServicing {
         adapterOperationToken = token
         let operation = Task { @MainActor [weak self] in
             guard let self, !Task.isCancelled else { return }
+            guard (try? await self.dataActor.permitsOrdinaryCloudTransport()) == true else {
+                await self.reloadSnapshot()
+                return
+            }
+            guard !Task.isCancelled else { return }
             if self.adapter == nil {
                 let created = self.adapterFactory(self.dataActor)
                 created.onStatusChange = { [weak self] in
@@ -233,8 +245,9 @@ final class CloudSyncService: CloudSyncServicing {
         adapterOperationTask?.cancel()
         adapterOperationTask = nil
         adapterOperationToken = nil
-        await adapter?.stop()
+        let stoppingAdapter = adapter
         adapter = nil
+        await stoppingAdapter?.stop()
     }
 
     private func continueCloudDeletion() async -> CloudSyncCloudDeletionOutcome {
@@ -292,15 +305,18 @@ final class CloudSyncService: CloudSyncServicing {
             // enabled; only a confirmed whole-zone delete is allowed to clear this marker.
             if persisted.isEnabled { retentionStore.cloudCopyMayExist = true }
             snapshot = snapshotWithRetention(persisted)
+            if !snapshot.permitsCloudTransport { await stopAdapter() }
             publishSnapshot()
         } catch {
+            await stopAdapter()
             snapshot = CloudSyncSnapshot(
                 isEnabled: snapshot.isEnabled,
                 status: .failed,
                 reason: .localValidationFailed,
                 pendingCount: snapshot.pendingCount,
                 quarantinedCount: snapshot.quarantinedCount,
-                cloudCopyMayExist: retentionStore.cloudCopyMayExist
+                cloudCopyMayExist: retentionStore.cloudCopyMayExist,
+                blocksOrdinarySyncForForeignCurrency: snapshot.blocksOrdinarySyncForForeignCurrency
             )
             publishSnapshot()
         }
@@ -322,7 +338,8 @@ final class CloudSyncService: CloudSyncServicing {
             reason: value.reason,
             pendingCount: value.pendingCount,
             quarantinedCount: value.quarantinedCount,
-            cloudCopyMayExist: retentionStore.cloudCopyMayExist
+            cloudCopyMayExist: retentionStore.cloudCopyMayExist,
+            blocksOrdinarySyncForForeignCurrency: value.blocksOrdinarySyncForForeignCurrency
         )
     }
 }
@@ -330,8 +347,10 @@ final class CloudSyncService: CloudSyncServicing {
 private extension CloudSyncSnapshot {
     var permitsCloudTransport: Bool {
         guard isEnabled else { return false }
+        if blocksOrdinarySyncForForeignCurrency, status != .deletingCloudData { return false }
         switch status {
-        case .pausedAccountChanged, .pausedEncryptedDataReset, .pausedRemoteZoneDeleted:
+        case .pausedAccountChanged, .pausedEncryptedDataReset, .pausedRemoteZoneDeleted,
+             .pausedForeignCurrency:
             return false
         case .disabled, .starting, .ready, .syncing, .waitingForNetwork,
              .accountUnavailable, .quotaExceeded, .deletingCloudData, .failed:
@@ -378,6 +397,7 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
 
     @MainActor
     func start() async {
+        guard await permitsOrdinaryTransport() else { return }
         guard await establishAccountAuthority() else { return }
         do {
             let serialization = try await dataActor.cloudSyncEngineStateData().flatMap {
@@ -388,9 +408,11 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
             // before fetching would erase the remote-deletion trust boundary. Genesis creation is
             // completed before the automatically scheduled engine exists, avoiding a fetch racing
             // the initial saveZone operation and misclassifying our own confirmed rebuild.
+            guard await permitsOrdinaryTransport() else { return }
             if Self.requiresGenesisZoneCreation(hasSerializedState: serialization != nil) {
                 _ = try await container.privateCloudDatabase.save(CKRecordZone(zoneID: zoneID))
             }
+            guard await permitsOrdinaryTransport() else { return }
             var configuration = CKSyncEngine.Configuration(
                 database: container.privateCloudDatabase,
                 stateSerialization: serialization,
@@ -403,8 +425,11 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
             try await addPendingOutboxChanges(to: engine)
             try await dataActor.updateCloudSyncStatus(.syncing, reason: nil)
             await notifyStatusChange()
+            guard await permitsOrdinaryTransport() else { return }
             try await engine.fetchChanges()
+            guard await permitsOrdinaryTransport() else { return }
             try await engine.sendChanges()
+            guard await permitsOrdinaryTransport() else { return }
             try await dataActor.completeCloudSyncPass()
         } catch {
             await handle(error)
@@ -414,6 +439,7 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
 
     @MainActor
     func synchronize() async {
+        guard await permitsOrdinaryTransport() else { return }
         guard await establishAccountAuthority() else {
             if let engine = await lifecycle.engine { await engine.cancelOperations() }
             await lifecycle.setEngine(nil)
@@ -427,8 +453,11 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
             try await addPendingOutboxChanges(to: engine)
             try await dataActor.updateCloudSyncStatus(.syncing, reason: nil)
             await notifyStatusChange()
+            guard await permitsOrdinaryTransport() else { return }
             try await engine.fetchChanges()
+            guard await permitsOrdinaryTransport() else { return }
             try await engine.sendChanges()
+            guard await permitsOrdinaryTransport() else { return }
             try await dataActor.completeCloudSyncPass()
         } catch {
             await handle(error)
@@ -438,6 +467,11 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
 
     @MainActor
     func deleteCloudData() async -> CloudSyncCloudDeletionOutcome {
+        // The synthetic protocol escape hatch can never authorize real CloudKit, including
+        // this separately confirmed privacy path which deliberately bypasses ordinary sync.
+        guard Self.permitsCloudDeletion(isProtocolFixture: await dataActor.usesForeignCurrencyProtocolFixtures) else {
+            return .failed(.foreignCurrencyLocalOnly)
+        }
         if let engine = await lifecycle.engine { await engine.cancelOperations() }
         await lifecycle.setEngine(nil)
         guard let accountFailure = await deletionAccountFailure() else {
@@ -467,7 +501,7 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
                     return .deleted
                 case .malformedRecord, .unsupportedSchema, .invalidIdentity, .invalidLineage,
                      .divergentConflict, .missingParent, .physicalDeletion,
-                     .localValidationFailed, .transportFailed:
+                     .localValidationFailed, .transportFailed, .foreignCurrencyLocalOnly:
                     return .failed(resolution.reason)
                 }
             }
@@ -484,6 +518,7 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
     }
 
     func handleEvent(_ event: CKSyncEngine.Event, syncEngine: CKSyncEngine) async {
+        guard await permitsOrdinaryTransport(delegateEngine: syncEngine) else { return }
         do {
             switch event {
             case .stateUpdate(let update):
@@ -523,7 +558,11 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
         } catch {
             await handle(error, delegateEngine: syncEngine)
         }
-        await notifyStatusChange()
+        // A snapshot reload can now stop an engine when a fetched cohort introduces FX.
+        // Leave the serialized delegate task before letting the service await cancellation.
+        Self.schedulePostDelegateEngineOperation { [weak self] in
+            await self?.notifyStatusChange()
+        }
     }
 
     /// A missing private zone is destructive external state, not an empty sync target. C4B-03
@@ -546,12 +585,15 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
         _ context: CKSyncEngine.SendChangesContext,
         syncEngine: CKSyncEngine
     ) async -> CKSyncEngine.RecordZoneChangeBatch? {
+        guard await permitsOrdinaryTransport(delegateEngine: syncEngine) else { return nil }
         let pending = syncEngine.state.pendingRecordZoneChanges.filter { context.options.scope.contains($0) }
-        return await CKSyncEngine.RecordZoneChangeBatch(pendingChanges: pending) { [dataActor, zoneID] recordID in
-            guard recordID.zoneID == zoneID,
+        return await CKSyncEngine.RecordZoneChangeBatch(pendingChanges: pending) { [self] recordID in
+            guard await permitsOrdinaryTransport(delegateEngine: syncEngine),
+                  recordID.zoneID == zoneID,
                   let pending = try? await dataActor.pendingCloudSyncRecord(named: recordID.recordName) else {
                 return nil
             }
+            guard await permitsOrdinaryTransport(delegateEngine: syncEngine) else { return nil }
             let record = Self.decodeSystemFields(pending.encodedSystemFields)
                 ?? CKRecord(recordType: Self.recordType, recordID: recordID)
             guard record.recordID == recordID, record.recordType == Self.recordType else { return nil }
@@ -565,18 +607,25 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
         syncEngine: CKSyncEngine
     ) async -> CKSyncEngine.FetchChangesOptions {
         var options = CKSyncEngine.FetchChangesOptions()
+        guard await permitsOrdinaryTransport(delegateEngine: syncEngine) else {
+            options.scope = .zoneIDs([])
+            return options
+        }
         options.scope = .zoneIDs([zoneID])
         return options
     }
 
     private func establishAccountAuthority() async -> Bool {
+        guard await permitsOrdinaryTransport() else { return false }
         do {
             guard try await container.accountStatus() == .available else {
                 try await dataActor.updateCloudSyncStatus(.accountUnavailable, reason: .noAccount)
                 await notifyStatusChange()
                 return false
             }
+            guard await permitsOrdinaryTransport() else { return false }
             let userRecordID = try await container.userRecordID()
+            guard await permitsOrdinaryTransport() else { return false }
             let identifierHash = CloudSyncCodec.digestHex(Data(userRecordID.recordName.utf8))
             let accepted = try await dataActor.bindCloudSyncAccount(identifierHash: identifierHash)
             if !accepted { await notifyStatusChange() }
@@ -585,6 +634,10 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
             await handle(error)
             return false
         }
+    }
+
+    nonisolated static func permitsCloudDeletion(isProtocolFixture: Bool) -> Bool {
+        !isProtocolFixture
     }
 
     private func deletionAccountFailure() async -> CloudSyncReasonCode? {
@@ -601,7 +654,9 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
     }
 
     private func addPendingOutboxChanges(to engine: CKSyncEngine) async throws {
+        guard await permitsOrdinaryTransport() else { return }
         let names = try await dataActor.pendingCloudSyncRecordNames()
+        guard await permitsOrdinaryTransport() else { return }
         let existing = Set(engine.state.pendingRecordZoneChanges.compactMap { change -> CKRecord.ID? in
             if case .saveRecord(let id) = change { return id }
             return nil
@@ -656,6 +711,7 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
         syncEngine: CKSyncEngine
     ) async throws {
         for record in event.savedRecords where record.recordID.zoneID == zoneID {
+            guard await permitsOrdinaryTransport(delegateEngine: syncEngine) else { return }
             guard let fields = Self.encodeSystemFields(record) else { continue }
             try await dataActor.acknowledgeCloudSyncRecord(
                 recordName: record.recordID.recordName,
@@ -663,6 +719,7 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
             )
         }
         for failure in event.failedRecordSaves where failure.record.recordID.zoneID == zoneID {
+            guard await permitsOrdinaryTransport(delegateEngine: syncEngine) else { return }
             if failure.error.code == .serverRecordChanged {
                 syncEngine.state.remove(
                     pendingRecordZoneChanges: [.saveRecord(failure.record.recordID)]
@@ -732,6 +789,7 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
     }
 
     private func handle(_ error: Error, delegateEngine: CKSyncEngine? = nil) async {
+        guard await permitsOrdinaryTransport(delegateEngine: delegateEngine) else { return }
         let resolution = Self.statusResolution(for: error)
         try? await dataActor.updateCloudSyncStatus(resolution.status, reason: resolution.reason)
         if resolution.status.isStickyPause {
@@ -742,6 +800,27 @@ final class CKSyncEngineAdapter: NSObject, CloudSyncEngineAdapting, CKSyncEngine
                 await lifecycle.setEngine(nil)
             }
         }
+    }
+
+    /// Re-read durable authority at every asynchronous CloudKit boundary. This check never
+    /// clears an outbox, inbox, accepted ancestry, or engine serialization. Explicit whole-zone
+    /// deletion has separate authority and deliberately does not call this ordinary-path gate.
+    private func permitsOrdinaryTransport(delegateEngine: CKSyncEngine? = nil) async -> Bool {
+        let persistedPermission = (try? await dataActor.permitsOrdinaryCloudTransport()) == true
+        if !Task.isCancelled, persistedPermission { return true }
+        if let delegateEngine {
+            cancelEngineAfterDelegateCallback(delegateEngine)
+            Self.schedulePostDelegateEngineOperation { [weak self] in
+                await self?.notifyStatusChange()
+            }
+        } else {
+            if let engine = await lifecycle.engine {
+                await engine.cancelOperations()
+                await lifecycle.clearEngine(ifMatching: engine)
+            }
+            await notifyStatusChange()
+        }
+        return false
     }
 
     /// CKSyncEngine serializes delegate events and rejects awaiting an engine method from inside a

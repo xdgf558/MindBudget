@@ -40,7 +40,36 @@ FIXED_COMMERCE_FIXTURE = """enum FXUIFixtureAccess {
     }
 }
 """
-UNIT_BINDINGS = (
+# Current product admission is independent of the retained synthetic protocol regressions below.
+# Native evidence must pass every group exactly once; a synthetic round-trip never substitutes
+# for a rejected product write, an inactive adapter, or retained incoming bytes.
+LOCAL_ONLY_UNIT_BINDINGS = (
+    "CloudSyncTests/syntheticProtocolAuthorityCannotReachNativeCloudDeletion",
+    "ForeignCurrencyPersistenceTests/localOnlySyncRejectsFXCreationAndConversionAtomically",
+    "ForeignCurrencyPersistenceTests/localFXBlocksEnableAndRecoveryWithoutDiscardingTransportState",
+    "ForeignCurrencyPersistenceTests/legacyCoexistencePausesWithoutRevokingOptInAndStewardshipSurvivesProExpiry",
+    "ForeignCurrencyPersistenceTests/legacyCoexistenceCanBeDisabledBeforeFirstSnapshot",
+    "ForeignCurrencyPersistenceTests/retainedCompanionFootprintsPauseDeliveryWithoutDroppingBytes",
+    "ForeignCurrencyPersistenceTests/incomingCompanionBatchIsDurableBeforeAnyFinancialApplication",
+    # This binds a disclosed frozen-parent limitation, never mixed-peer CloudKit acceptance.
+    "ForeignCurrencyPersistenceTests/legacyParentFirstArrivalRemainsAnExplicitCompatibilityLimit",
+    "ForeignCurrencyPersistenceTests/ordinarySyncRemainsAvailableButDisabledStickyAndFixtureModesCannotTransport",
+    "ForeignCurrencyPersistenceTests/defaultReplayAndConflictResolutionCannotBypassLocalOnlyPause",
+    "ForeignCurrencyPersistenceTests/foreignTransportFootprintSurvivesAccountPauseDisableWithoutPurgingAncestry",
+    "ForeignCurrencyPersistenceTests/explicitCloudErasureStillAllowsLocalFXWithoutOrdinaryTransport",
+    "CloudSyncTests/foreignCurrencyEnableRejectionPublishesTheLocalOnlyReasonWithoutAnAdapter",
+    "CloudSyncTests/newlyObservedForeignCurrencyStopsAnActiveAdapterAndRetainsTransportState",
+    "CloudSyncTests/existingForeignCurrencyPausesStartupButDoesNotInitiateOrBlockExplicitCloudDeletion",
+    "CloudSyncTests/ordinarySyncWithoutForeignCurrencyStillStartsRetriesAndForegrounds",
+    "ForeignCurrencyFormTests/enabledSyncBlocksNewForeignModeWithoutDiscardingOrdinaryInput",
+    "ForeignCurrencyFormTests/enabledSyncBlocksOrdinaryConversionButNotSavedForeignStewardship",
+    "ForeignCurrencyFormTests/privacyDeletionIsNotOrdinarySyncAndKeepsNewLocalForeignEntryAvailable",
+    "ForeignCurrencyFormTests/enabledForeignPauseKeepsOnlyExplicitDisableAndPrivacyActions",
+    "ForeignCurrencyFormTests/disabledForeignPauseKeepsOnlyExplicitDisableAndPrivacyActions",
+    "ForeignCurrencyFormTests/ordinarySyncSettingsActionsRemainAvailableWithoutForeignCurrencyPause",
+    "ForeignCurrencyFormTests/foreignFootprintExplainsAndBlocksRecoveryWithoutReplacingTrustPause",
+)
+RETAINED_UNIT_BINDINGS = (
     "ForeignCurrencyCompatibilityTests/frozenTwelveTypeCodecAcceptsUnchangedParentAndRejectsCompanion",
     "ForeignCurrencyCompatibilityTests/oldCodecAuthoredOrdinaryEditImportsWithoutInventingFX",
     "ForeignCurrencyCompatibilityTests/oldCodecContradictoryEditStaysPendingAcrossReopenWithoutRevaluation",
@@ -98,6 +127,7 @@ UNIT_BINDINGS = (
     "ForeignCurrencyPersistenceTests/foreignSyncConflictsRequireOneExplicitAtomicFinancialChoice",
     "ForeignCurrencyPersistenceTests/foreignSyncDeletionIsScopedAndParentTombstonesPreventResurrection",
 )
+UNIT_BINDINGS = RETAINED_UNIT_BINDINGS + LOCAL_ONLY_UNIT_BINDINGS
 UI_BINDINGS = (
     "MindBudgetPhase3UITests/testManualForeignCurrencyEnglishProCreateAndDetail",
     "MindBudgetPhase3UITests/testManualForeignCurrencyChineseAX5ProCreateAndDetail",
