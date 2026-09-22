@@ -348,6 +348,15 @@ EXPECTED_LOCAL_ONLY_SYNC = {
     "pausePreservesOtherStickyCauses": True,
     "independentSnapshotFlag": "blocksOrdinarySyncForForeignCurrency",
     "companionFootprint": ["localMetadata", "acceptedMetadata", "outbox", "inbox"],
+    "transportFootprintCache": {
+        "owner": "singleDataActor",
+        "initialState": "unknown",
+        "localCompanionCheck": "uncachedFetchLimitOne",
+        "cachedValueAfter": "successfulCompleteTransportScan",
+        "presenceLatch": "incomingOrStagedCompanionBeforeSave",
+        "invalidatedBy": ["rollback", "wholeTransportClear", "localDeleteAll"],
+        "ordinaryValidatedWriteOrAcknowledgement": "preserveAbsentCache",
+    },
     "incomingCompanionBatch": "retainEntireBatchBeforeFinancialApplication",
     "legacyParentFirstArrival": "unmarkedFrozenParentMayApplyBeforeCompanionThenPause",
     "ordinaryLedgerWithoutFX": "unchanged",
@@ -378,6 +387,7 @@ LOCAL_ONLY_DOC_ANCHORS = (
     "Exactly thirteen wire types remain for synthetic protocol regression only, not FX delivery admission.",
     "Fixture-enabled actors are always denied native ordinary transport",
     "Frozen-parent compatibility limit:",
+    "Transport-footprint caching belongs to one DataActor, never to global state or persisted consent.",
     "Foreign-currency cloud delivery and the probe remain deferred.",
 )
 
@@ -682,7 +692,7 @@ def _compact(text: str) -> str:
 
 def _swift_function(text: str, name: str) -> str | None:
     code = _swift_code(text)
-    declarations = list(re.finditer(r"\bfunc\s+" + re.escape(name) + r"\s*\(", code))
+    declarations = list(re.finditer(r"\bfunc\s+" + re.escape(name) + r"(?:<[^>]+>)?\s*\(", code))
     if len(declarations) != 1:
         return None
     start = declarations[0].start()
@@ -706,7 +716,16 @@ LOCAL_ONLY_FUNCTION_RULES = (
         "control.isEnabled", "control.statusRaw != CloudSyncStatus.deletingCloudData.rawValue",
         "throw ForeignCurrencyError.syncRequiresCompanionProtocol")),
     ("foreign", "hasForeignCurrencySyncFootprint", (
-        "FetchDescriptor<ExpenseForeignCurrencyMetadata>()", "FetchDescriptor<CloudSyncRecordMetadata>()",
+        "var local = FetchDescriptor<ExpenseForeignCurrencyMetadata>()", "local.fetchLimit = 1",
+        "if try !modelContext.fetch(local).isEmpty { return true }",
+        "if let known = foreignCurrencyTransportFootprint { return known }",
+        "let found = try scanForeignCurrencyTransportFootprint()",
+        "foreignCurrencyTransportFootprint = found", "return found")),
+    ("foreign", "scanForeignCurrencyTransportFootprint", (
+        "let kind = CloudSyncEntityType.expenseForeignCurrencyMetadata.rawValue",
+        "if name.hasPrefix(kind + \"/\") { return true }", "guard let data else { return false }",
+        "return (try? CloudSyncCodec.decodeEnvelope(data))?.entityType == .expenseForeignCurrencyMetadata",
+        "FetchDescriptor<CloudSyncRecordMetadata>()",
         "$0.entityTypeRaw == kind || isCompanion($0.recordName)",
         "FetchDescriptor<CloudSyncOutboxItem>()", "$0.entityTypeRaw == kind || isCompanion($0.recordName, $0.envelopeData)",
         "FetchDescriptor<CloudSyncInboxItem>()", "isCompanion($0.recordName, $0.envelopeData)")),
@@ -764,8 +783,18 @@ LOCAL_ONLY_FUNCTION_RULES = (
         "let companionArrived = records.contains", "let preserveOnly = try !usesForeignCurrencyProtocolFixtures",
         "&& (companionArrived || foreignCurrencyBlocksOrdinarySync())",
         "for record in records", "if record.wasPhysicallyDeleted && !preserveOnly",
+        "if companionArrived { foreignCurrencyTransportFootprint = true }",
         "try reconcileForeignCurrencySyncPause(persist: false)", "try modelContext.save()",
         "try applyPendingCloudSyncInbox(at: receivedAt)")),
+    ("actor", "stageCloudSyncProjection", (
+        "if projection.entityType == .expenseForeignCurrencyMetadata { foreignCurrencyTransportFootprint = true }",
+        "let recordName = try projection.recordName")),
+    ("actor", "deleteCloudSyncAccountScopedState", (
+        "foreignCurrencyTransportFootprint = nil", "FetchDescriptor<CloudSyncInboxItem>()")),
+    ("storage", "deleteAllLocalModels", (
+        "foreignCurrencyTransportFootprint = nil", "FetchDescriptor<ExpenseForeignCurrencyMetadata>()")),
+    ("storage", "commit", (
+        "let result = try changes()", "modelContext.rollback()", "foreignCurrencyTransportFootprint = nil", "throw error")),
     ("actor", "stageCloudSyncChangesFromCurrentContext", (
         "guard control.statusRaw != CloudSyncStatus.deletingCloudData.rawValue else { return false }",
         "if try foreignCurrencyBlocksOrdinarySync() { return try reconcileForeignCurrencySyncPause(persist: false) }",
@@ -816,6 +845,7 @@ LOCAL_ONLY_FUNCTION_RULES = (
         "cancelEngineAfterDelegateCallback(delegateEngine)", "return false")),
 )
 LOCAL_ONLY_SCOPE_FILES = {
+    "storage": "MindBudget/Data/DataActor.swift",
     "foreign": "MindBudget/Data/ForeignCurrencyDataActor.swift",
     "actor": "MindBudget/Data/CloudSyncDataActor.swift",
     "remote": "MindBudget/Data/CloudSyncRemoteApply.swift",
@@ -846,6 +876,17 @@ def _local_only_scopes(source: dict[str, str]) -> dict[str, str]:
     service, _, native = runtime.partition("final class CKSyncEngineAdapter:")
     return {key: service if key == "service" else native if key == "native" else source[path]
             for key, path in LOCAL_ONLY_SCOPE_FILES.items()}
+
+
+EXPECTED_FOOTPRINT_CACHE_QUERY = """func hasForeignCurrencySyncFootprint() throws -> Bool {
+    var local = FetchDescriptor<ExpenseForeignCurrencyMetadata>()
+    local.fetchLimit = 1
+    if try !modelContext.fetch(local).isEmpty { return true }
+    if let known = foreignCurrencyTransportFootprint { return known }
+    let found = try scanForeignCurrencyTransportFootprint()
+    foreignCurrencyTransportFootprint = found
+    return found
+}"""
 
 
 def local_only_sync_errors(root: Path) -> list[str]:
@@ -889,6 +930,17 @@ def local_only_sync_errors(root: Path) -> list[str]:
     if not separator:
         errors.append("native CloudKit adapter boundary missing")
     scopes = _local_only_scopes(source)
+    if not re.search(r"^\s*var foreignCurrencyTransportFootprint: Bool\?\s*$", fixture, re.M):
+        errors.append("one-actor transport footprint cache must start unknown, never literal absence")
+    if _compact(_swift_function(foreign, "hasForeignCurrencySyncFootprint") or "") != _compact(EXPECTED_FOOTPRINT_CACHE_QUERY):
+        errors.append("local companion check must precede cache and only a successful transport scan may assign it")
+    for scope in ("storage", "actor", "remote"):
+        code = _compact(scopes[scope])
+        if code.count("modelContext.rollback()") != code.count("modelContext.rollback()foreignCurrencyTransportFootprint=nil"):
+            errors.append(f"every {scope} rollback must invalidate transport footprint knowledge")
+    for name in ("acknowledgeCloudSyncRecord", "pendingCloudSyncRecord", "pendingCloudSyncRecordNames", "saveCloudSyncEngineState"):
+        if "foreignCurrencyTransportFootprint" in (_swift_function(scopes["actor"], name) or ""):
+            errors.append(f"ordinary provider/ack must not rescan or invalidate the transport cache: {name}")
     if _compact(_swift_function(scopes["actor"], "expenseFields") or "") != _compact(FROZEN_EXPENSE_PROJECTION):
         errors.append("frozen Expense wire projection must not acquire an FX field or change accounting payload")
     for scope, name, anchors in LOCAL_ONLY_FUNCTION_RULES:
@@ -931,10 +983,10 @@ def local_only_sync_errors(root: Path) -> list[str]:
     if not re.search(r"case\s+\.pausedAccountChanged,\s*\.pausedEncryptedDataReset,\s*\.pausedRemoteZoneDeleted,\s*\.pausedForeignCurrency:\s*true", _swift_code(sticky)):
         errors.append("foreign-currency status must remain a sticky pause alongside existing causes")
     bindings_source = (root / "Scripts/fx01_ui_contract.py").read_text()
-    if (len(fx01_ui_contract.LOCAL_ONLY_UNIT_BINDINGS) != 23
-            or len(set(fx01_ui_contract.LOCAL_ONLY_UNIT_BINDINGS)) != 23
+    if (len(fx01_ui_contract.LOCAL_ONLY_UNIT_BINDINGS) != 25
+            or len(set(fx01_ui_contract.LOCAL_ONLY_UNIT_BINDINGS)) != 25
             or "UNIT_BINDINGS = RETAINED_UNIT_BINDINGS + LOCAL_ONLY_UNIT_BINDINGS" not in bindings_source):
-        errors.append("all 23 separate local-only bindings must join, not replace, retained native evidence")
+        errors.append("all 25 separate local-only bindings must join, not replace, retained native evidence")
     for binding in fx01_ui_contract.LOCAL_ONLY_UNIT_BINDINGS:
         suite, method = binding.split("/")
         filename = "ForeignCurrencyTests.swift" if suite == "ForeignCurrencyPersistenceTests" else suite + ".swift"
@@ -975,6 +1027,12 @@ def run_local_only_self_test(data: Any, root: Path) -> None:
                 finally:
                     path.write_text(originals[relative])
         replacements = (
+            ("MindBudget/Data/DataActor.swift", "var foreignCurrencyTransportFootprint: Bool?", "var foreignCurrencyTransportFootprint: Bool? = false"),
+            ("MindBudget/Data/ForeignCurrencyDataActor.swift", "foreignCurrencyTransportFootprint = found", "foreignCurrencyTransportFootprint = false"),
+            ("MindBudget/Data/ForeignCurrencyDataActor.swift", "local.fetchLimit = 1", "local.fetchLimit = 0"),
+            ("MindBudget/Data/ForeignCurrencyDataActor.swift", "let found = try scanForeignCurrencyTransportFootprint()", "let found = (try? scanForeignCurrencyTransportFootprint()) ?? false"),
+            ("MindBudget/Data/CloudSyncDataActor.swift", "if companionArrived { foreignCurrencyTransportFootprint = true }", "if companionArrived { foreignCurrencyTransportFootprint = false }"),
+            ("MindBudget/Data/CloudSyncDataActor.swift", "foreignCurrencyTransportFootprint = true\n        }\n        let recordName", "foreignCurrencyTransportFootprint = false\n        }\n        let recordName"),
             ("MindBudget/Data/DataActor.swift", "#if DEBUG\n    private(set) var foreignCurrencyProtocolFixturesEnabled", "#if DEBUG || RELEASE\n    private(set) var foreignCurrencyProtocolFixturesEnabled"),
             ("MindBudget/Data/DataActor.swift", "guard !modelContext.container.configurations.isEmpty,", "guard true,"),
             ("MindBudget/Data/DataActor.swift", "modelContext.container.configurations.allSatisfy({ $0.isStoredInMemoryOnly })", "modelContext.container.configurations.contains(where: { $0.isStoredInMemoryOnly })"),
@@ -1002,6 +1060,18 @@ def run_local_only_self_test(data: Any, root: Path) -> None:
                 count += 1
             finally:
                 path.write_text(text)
+        # Invalidate every rollback independently; a valid sibling cannot mask one missing site.
+        for relative in ("MindBudget/Data/DataActor.swift", "MindBudget/Data/CloudSyncDataActor.swift", "MindBudget/Data/CloudSyncRemoteApply.swift"):
+            path = fixture / relative
+            text = _swift_code(path.read_text())
+            for match in re.finditer(r"modelContext\.rollback\(\)\s*foreignCurrencyTransportFootprint = nil", text):
+                path.write_text(text[:match.start()] + "modelContext.rollback()" + text[match.end():])
+                try:
+                    if not local_only_sync_errors(fixture):
+                        raise RuntimeError(f"transport cache rollback mutation failed open: {relative}")
+                    count += 1
+                finally:
+                    path.write_text(originals[relative])
         for relative in ("MindBudget/App/ForbiddenFixture.swift", "Tools/ForbiddenFixture.swift"):
             path = fixture / relative
             path.parent.mkdir(parents=True, exist_ok=True)

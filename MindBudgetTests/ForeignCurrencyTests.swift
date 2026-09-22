@@ -386,6 +386,125 @@ struct ForeignCurrencyPersistenceTests {
             consentVersion: 1, lastReasonRaw: reason?.rawValue, updatedAt: date))
     }
 
+    @Test func ordinaryRecordProviderDoesNotRescanTransportPerRecord() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let actor = controller.dataActor
+        var expectedAmounts: [String: Int64] = [:]
+        var firstID: UUID?
+        for index in 1...256 {
+            let id = UUID()
+            if firstID == nil { firstID = id }
+            let amount = Int64(index)
+            _ = try await actor.createExpense(draft(id: id, amount: amount))
+            expectedAmounts["expense/\(id.uuidString.lowercased())"] = amount
+        }
+        _ = try await actor.setCloudSyncEnabled(true)
+        let names = try await actor.pendingCloudSyncRecordNames()
+        #expect(names.count == 256 && Set(names) == Set(expectedAmounts.keys))
+        let baseline = await actor.foreignCurrencyTransportScanCount
+        let decodeBaseline = await actor.foreignCurrencyFootprintEnvelopeDecodeCount
+        #expect(baseline > 0)
+        let systemFields = Data("synthetic-provider-system-fields".utf8)
+        let serialization = Data("synthetic-provider-engine-state".utf8)
+        for name in names {
+            // Mirrors the adapter's permission/provider/permission/send-ack sequence without
+            // a wall-clock threshold or a real CloudKit record/account operation.
+            #expect(try await actor.permitsOrdinaryCloudTransport())
+            let pending = try #require(try await actor.pendingCloudSyncRecord(named: name))
+            #expect(try await actor.permitsOrdinaryCloudTransport())
+            let envelope = try CloudSyncCodec.decodeEnvelope(pending.envelopeData)
+            #expect(envelope.entityType == .expense && envelope.operation == .upsert)
+            #expect(envelope.payload?.fields["amount"]?.integerValue == expectedAmounts[name])
+            #expect(envelope.payload?.fields["currency"]?.stringValue == "USD")
+            try await actor.acknowledgeCloudSyncRecord(recordName: name,
+                encodedSystemFields: systemFields, at: date)
+            try await actor.saveCloudSyncEngineState(serialization, at: date)
+            #expect(await actor.foreignCurrencyTransportScanCount == baseline)
+            #expect(await actor.foreignCurrencyFootprintEnvelopeDecodeCount == decodeBaseline)
+        }
+        #expect(try await actor.pendingCloudSyncRecordNames().isEmpty)
+        #expect(try await actor.cloudSyncEngineStateData() == serialization)
+        let summaries = try await actor.fetchExpenseSummaries()
+        #expect(summaries.count == 256)
+        #expect(summaries.reduce(Int64(0)) { $0 + $1.amount.minorUnits } == 32_896)
+        let metadata = try ModelContext(controller.container).fetch(FetchDescriptor<CloudSyncRecordMetadata>())
+        #expect(metadata.count == 256)
+        #expect(metadata.allSatisfy {
+            $0.acceptedRevision == 1 && $0.stateRaw == "accepted"
+                && $0.encodedSystemFields == systemFields
+        })
+        // A validated ordinary projection after an accepted queue must not invalidate absence.
+        let id = try #require(firstID)
+        _ = try await actor.updateExpense(id: id, with: draft(id: id, amount: 1_000))
+        let name = "expense/\(id.uuidString.lowercased())"
+        #expect(try await actor.pendingCloudSyncRecordNames() == [name])
+        let updated = try #require(try await actor.pendingCloudSyncRecord(named: name))
+        let envelope = try CloudSyncCodec.decodeEnvelope(updated.envelopeData)
+        #expect(envelope.revision == 2 && envelope.payload?.fields["amount"]?.integerValue == 1_000)
+        #expect(try await actor.permitsOrdinaryCloudTransport())
+        try await actor.acknowledgeCloudSyncRecord(recordName: name, encodedSystemFields: systemFields, at: date)
+        #expect(try await actor.pendingCloudSyncRecordNames().isEmpty)
+        #expect(try await actor.fetchExpenseDetail(id: id)?.summary.amount.minorUnits == 1_000)
+        #expect(await actor.foreignCurrencyTransportScanCount == baseline)
+        #expect(await actor.foreignCurrencyFootprintEnvelopeDecodeCount == decodeBaseline)
+    }
+
+    @Test func transportFootprintCacheRechecksAfterRollbackAndWholeTransportErasure() async throws {
+        let controller = try DataController(isStoredInMemoryOnly: true)
+        let actor = controller.dataActor
+        let id = UUID()
+        _ = try await actor.createExpense(draft(id: id, amount: 700))
+        _ = try await actor.setCloudSyncEnabled(true)
+        #expect(try await actor.permitsOrdinaryCloudTransport())
+        let baseline = await actor.foreignCurrencyTransportScanCount
+        let before = try await actor.fetchExpenseDetail(id: id)
+        let beforeQueue = try await fxRemoteRecords(actor)
+        await #expect(throws: (any Error).self) {
+            _ = try await actor.createExpense(draft(amount: 0))
+        }
+        #expect(try await actor.permitsOrdinaryCloudTransport())
+        let afterRollback = await actor.foreignCurrencyTransportScanCount
+        #expect(afterRollback == baseline + 1)
+        #expect(try await actor.fetchExpenseDetail(id: id) == before)
+        let afterQueue = try await fxRemoteRecords(actor)
+        #expect(afterQueue.map(\.recordName) == beforeQueue.map(\.recordName))
+        #expect(afterQueue.map(\.envelopeData) == beforeQueue.map(\.envelopeData))
+        #expect(await actor.foreignCurrencyTransportScanCount == afterRollback)
+
+        let source = try DataController(isStoredInMemoryOnly: true).dataActor
+        try await source.enableForeignCurrencyProtocolFixtures()
+        _ = try await source.setCloudSyncEnabled(true)
+        _ = try await source.createExpense(draft(foreign: facts()),
+            featureAccess: FeatureAccessService(entitlements: .proSubscription))
+        let incoming = try await fxRemoteRecords(source)
+        try await actor.ingestCloudSyncRecords(incoming, receivedAt: date)
+        #expect(try await !actor.permitsOrdinaryCloudTransport())
+        #expect(try await actor.cloudSyncSnapshot().status == .pausedForeignCurrency)
+        #expect(await actor.foreignCurrencyTransportScanCount == afterRollback)
+        #expect(try await actor.modelCounts().expenses == 1)
+        #expect(try await actor.modelCounts().foreignCurrencyMetadata == 0)
+        let beforeErasure = await actor.foreignCurrencyTransportScanCount
+        _ = try await actor.beginCloudDeletion(at: date)
+        // Actor-only completion models an independently confirmed delete; no adapter is used.
+        try await actor.completeCloudDeletion(at: date)
+        #expect(try await actor.fetchExpenseDetail(id: id) == before)
+        let cleared = ModelContext(controller.container)
+        #expect(try cleared.fetchCount(FetchDescriptor<CloudSyncInboxItem>()) == 0)
+        #expect(try cleared.fetchCount(FetchDescriptor<CloudSyncRecordMetadata>()) == 0)
+        #expect(try await actor.cloudSyncEngineStateData() == nil)
+        _ = try await actor.setCloudSyncEnabled(true)
+        #expect(try await actor.permitsOrdinaryCloudTransport())
+        let afterErasure = await actor.foreignCurrencyTransportScanCount
+        #expect(afterErasure == beforeErasure + 1)
+        #expect(try await actor.pendingCloudSyncRecordNames().count == 1)
+        let context = ModelContext(controller.container)
+        #expect(try context.fetchCount(FetchDescriptor<CloudSyncInboxItem>()) == 0)
+        let restaged = try context.fetch(FetchDescriptor<CloudSyncRecordMetadata>())
+        #expect(restaged.count == 1 && restaged.first?.acceptedRevision == 0)
+        #expect(restaged.first?.recordName == "expense/\(id.uuidString.lowercased())")
+        #expect(await actor.foreignCurrencyTransportScanCount == afterErasure)
+    }
+
     @Test func localOnlySyncRejectsFXCreationAndConversionAtomically() async throws {
         let controller = try DataController(isStoredInMemoryOnly: true)
         let actor = controller.dataActor
@@ -565,12 +684,16 @@ struct ForeignCurrencyPersistenceTests {
             let controller = try DataController(isStoredInMemoryOnly: true)
             let receiver = controller.dataActor
             _ = try await receiver.setCloudSyncEnabled(true)
+            #expect(try await receiver.permitsOrdinaryCloudTransport())
+            let absentCacheScans = await receiver.foreignCurrencyTransportScanCount
             try await receiver.ingestCloudSyncRecords(batch, receivedAt: date)
             #expect(try await receiver.modelCounts().expenses == 0)
             #expect(try await receiver.modelCounts().foreignCurrencyMetadata == 0)
             let snapshot = try await receiver.cloudSyncSnapshot()
             #expect(snapshot.isEnabled && snapshot.status == .pausedForeignCurrency)
             #expect(snapshot.reason == .foreignCurrencyLocalOnly)
+            #expect(try await !receiver.permitsOrdinaryCloudTransport())
+            #expect(await receiver.foreignCurrencyTransportScanCount == absentCacheScans)
             let reopened = DataActor(modelContainer: controller.container)
             try await reopened.applyPendingCloudSyncInbox(at: date)
             #expect(try await reopened.modelCounts().expenses == 0)

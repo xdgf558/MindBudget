@@ -154,6 +154,15 @@
     "pausePreservesOtherStickyCauses": true,
     "independentSnapshotFlag": "blocksOrdinarySyncForForeignCurrency",
     "companionFootprint": ["localMetadata", "acceptedMetadata", "outbox", "inbox"],
+    "transportFootprintCache": {
+      "owner": "singleDataActor",
+      "initialState": "unknown",
+      "localCompanionCheck": "uncachedFetchLimitOne",
+      "cachedValueAfter": "successfulCompleteTransportScan",
+      "presenceLatch": "incomingOrStagedCompanionBeforeSave",
+      "invalidatedBy": ["rollback", "wholeTransportClear", "localDeleteAll"],
+      "ordinaryValidatedWriteOrAcknowledgement": "preserveAbsentCache"
+    },
     "incomingCompanionBatch": "retainEntireBatchBeforeFinancialApplication",
     "legacyParentFirstArrival": "unmarkedFrozenParentMayApplyBeforeCompanionThenPause",
     "ordinaryLedgerWithoutFX": "unchanged",

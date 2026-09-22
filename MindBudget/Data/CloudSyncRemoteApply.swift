@@ -183,6 +183,7 @@ extension DataActor {
                 }
             } catch CloudSyncApplicationError.missingParent {
                 modelContext.rollback()
+                foreignCurrencyTransportFootprint = nil
                 for member in cohort {
                     member.item.reasonRaw = CloudSyncReasonCode.missingParent.rawValue
                     member.item.updatedAt = date
@@ -190,6 +191,7 @@ extension DataActor {
                 try modelContext.save()
             } catch {
                 modelContext.rollback()
+                foreignCurrencyTransportFootprint = nil
                 for member in cohort {
                     member.item.statusRaw = CloudSyncInboxStatus.quarantined.rawValue
                     member.item.reasonRaw = cloudSyncReason(for: error).rawValue
@@ -524,6 +526,7 @@ extension DataActor {
             CloudSyncRemoteApplicationSignal.post()
         } catch {
             modelContext.rollback()
+            foreignCurrencyTransportFootprint = nil
             throw error
         }
     }
@@ -644,6 +647,7 @@ extension DataActor {
             }
         } catch {
             modelContext.rollback()
+            foreignCurrencyTransportFootprint = nil
             throw error
         }
     }

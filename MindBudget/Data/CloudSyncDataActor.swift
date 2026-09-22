@@ -173,6 +173,7 @@ extension DataActor {
             return try cloudSyncSnapshot()
         } catch {
             modelContext.rollback()
+            foreignCurrencyTransportFootprint = nil
             throw error
         }
     }
@@ -262,6 +263,7 @@ extension DataActor {
             return try cloudSyncSnapshot()
         } catch {
             modelContext.rollback()
+            foreignCurrencyTransportFootprint = nil
             throw error
         }
     }
@@ -324,6 +326,7 @@ extension DataActor {
             return try cloudSyncSnapshot()
         } catch {
             modelContext.rollback()
+            foreignCurrencyTransportFootprint = nil
             throw error
         }
     }
@@ -497,10 +500,12 @@ extension DataActor {
                     )
                 )
             }
+            if companionArrived { foreignCurrencyTransportFootprint = true }
             try reconcileForeignCurrencySyncPause(persist: false)
             try modelContext.save()
         } catch {
             modelContext.rollback()
+            foreignCurrencyTransportFootprint = nil
             throw error
         }
         try applyPendingCloudSyncInbox(at: receivedAt)
@@ -618,6 +623,9 @@ extension DataActor {
         _ projection: CloudSyncMutationProjection,
         at date: Date
     ) throws -> Bool {
+        if projection.entityType == .expenseForeignCurrencyMetadata {
+            foreignCurrencyTransportFootprint = true
+        }
         let recordName = try projection.recordName
         let metadata = try fetchCloudSyncMetadata(recordName: recordName)
         let existingOutbox = try fetchCloudSyncOutbox(recordName: recordName)
@@ -713,6 +721,7 @@ extension DataActor {
     }
 
     private func deleteCloudSyncAccountScopedState() throws {
+        foreignCurrencyTransportFootprint = nil
         for value in try modelContext.fetch(FetchDescriptor<CloudSyncInboxItem>()) {
             modelContext.delete(value)
         }

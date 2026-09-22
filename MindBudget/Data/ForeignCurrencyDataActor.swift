@@ -27,12 +27,30 @@ extension DataActor {
     /// A companion may survive only in transport ancestry or an unapplied inbox. A missing
     /// visible expense is not permission to send its frozen, FX-unaware parent by itself.
     func hasForeignCurrencySyncFootprint() throws -> Bool {
-        if try modelContext.fetchCount(FetchDescriptor<ExpenseForeignCurrencyMetadata>()) > 0 { return true }
+        var local = FetchDescriptor<ExpenseForeignCurrencyMetadata>()
+        local.fetchLimit = 1
+        if try !modelContext.fetch(local).isEmpty { return true }
+        if let known = foreignCurrencyTransportFootprint { return known }
+        let found = try scanForeignCurrencyTransportFootprint()
+        foreignCurrencyTransportFootprint = found
+        return found
+    }
+
+    /// Decode the retained transport only once per authority generation, not once per record
+    /// provider. A throw leaves the cache unknown. Ordinary writes/acks cannot introduce FX;
+    /// ingress and explicit companion staging latch it before application or delivery.
+    func scanForeignCurrencyTransportFootprint() throws -> Bool {
+        #if DEBUG
+        foreignCurrencyTransportScanCount += 1
+        #endif
         let kind = CloudSyncEntityType.expenseForeignCurrencyMetadata.rawValue
         func isCompanion(_ name: String, _ data: Data? = nil) -> Bool {
-            name.hasPrefix(kind + "/")
-                || data.flatMap { try? CloudSyncCodec.decodeEnvelope($0) }?.entityType
-                    == .expenseForeignCurrencyMetadata
+            if name.hasPrefix(kind + "/") { return true }
+            guard let data else { return false }
+            #if DEBUG
+            foreignCurrencyFootprintEnvelopeDecodeCount += 1
+            #endif
+            return (try? CloudSyncCodec.decodeEnvelope(data))?.entityType == .expenseForeignCurrencyMetadata
         }
         if try modelContext.fetch(FetchDescriptor<CloudSyncRecordMetadata>()).contains(where: {
             $0.entityTypeRaw == kind || isCompanion($0.recordName)

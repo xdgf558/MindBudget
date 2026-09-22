@@ -32,6 +32,15 @@ The local-only admission check includes malformed/tombstoned companion footprint
 currently visible expense details. An account-change disable cannot purge the only surviving FX
 copy in transport state.
 
+Ordinary record providers must not repeatedly decode the entire queue. Every admission checks
+local FX metadata with a one-row existence query; retained transport uses an actor-owned
+unknown/absent/present cache. Its cold scan preserves raw type/name/envelope checks, companion
+ingress/projection latches presence before application, and rollback or complete transport erasure
+invalidates it. Canonical ordinary writes and acknowledgements do not introduce FX and preserve
+known absence. This relies on the existing single production DataActor writer; arbitrary external
+ModelContext transport mutations are not an enabled app path. Legacy local metadata is not cached.
+Large ordinary-provider regressions count scans/decodes deterministically, not via a new time limit.
+
 ## Retained protocol, limited evidence
 
 The thirteenth encrypted companion and frozen `.expense` format remain as protocol implementation.
@@ -61,6 +70,8 @@ and simulator provenance must be retained for complete validation; a text count 
 | Focused 3 | NON_PASS: a new unit test constructed `CKContainer` without a signing entitlement and the process exited before deletion admission. 122 other methods later passed; the overall failed run remains failed. No account/zone operation occurred. |
 | Corrective test design | Native deletion begins with a deterministic fixture-admission function. Its unit test checks that function with real actor fixture state without constructing a live SDK object; a source/negative gate pins its position and body. |
 | Focused 4 | 123 methods in six selected suites passed after the review/test corrections. This does not replace default complete validation or the compile-isolated FX UI host. |
+| Candidate `272e3c8` complete-local attempt | Author stopped the run during ordinary UI after independent review identified repeated full-queue decode complexity. Exit 75; NOT complete PASS. Static gates, Debug/Release compilation and the one-shot 167.774375 ms / 500 ms benchmark had passed; ordinary/FX acceptance was not completed. The following cache correction requires its own candidate validation. |
+| Focused 5 / cache correction | 125 methods in six selected suites passed, including the 256-record provider sequence and rollback/whole-clear invalidation. Targeted source-gate self-test rejected 169 negative mutations; 81 unit bindings and the original three isolated UI bindings remain required. These are development checks, not complete-local or hosted acceptance. |
 | Final candidate | Full default local validation, isolated FX/native verification, exact-head hosted jobs and independent review remain pending at source freeze. No earlier run substitutes for them. |
 
 Cross-file review during implementation caught account-pause disable data loss, deletion-state

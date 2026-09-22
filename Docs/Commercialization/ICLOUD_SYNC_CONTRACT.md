@@ -78,6 +78,16 @@ alone is not proof that its transport footprint is gone.
 The independent `blocksOrdinarySyncForForeignCurrency` snapshot flag explains this policy and
 blocks ineffective retry/rebuild UI without replacing any prior trust-boundary status or reason.
 
+Transport-footprint caching belongs to one DataActor, never to global state or persisted consent.
+Every admission first performs an uncached local-companion existence fetch limited to one row.
+Only transport metadata/outbox/inbox scanning is cached, initially unknown and assigned only after
+a complete successful scan of the original raw-type, name and decoded-envelope checks. Incoming
+and explicitly staged companions latch presence before reconciliation/save; rollback, whole
+transport clear and local Delete All invalidate the cache. Validated ordinary writes and accepted
+acknowledgements preserve cached absence and do not repeatedly decode the entire queue. The
+deterministic 256-record provider regression verifies scan/decode counts and unchanged financial
+facts; it does not change the Dashboard benchmark, its threshold or any transport permission.
+
 An incoming batch containing a companion is durably retained in full before any financial
 application. Once a companion is known in that cohort or another retained footprint, no parent-only
 import, cohort application, pending replay or conflict resolution may bypass the local-only pause.

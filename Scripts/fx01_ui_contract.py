@@ -44,6 +44,8 @@ FIXED_COMMERCE_FIXTURE = """enum FXUIFixtureAccess {
 # Native evidence must pass every group exactly once; a synthetic round-trip never substitutes
 # for a rejected product write, an inactive adapter, or retained incoming bytes.
 LOCAL_ONLY_UNIT_BINDINGS = (
+    "ForeignCurrencyPersistenceTests/ordinaryRecordProviderDoesNotRescanTransportPerRecord",
+    "ForeignCurrencyPersistenceTests/transportFootprintCacheRechecksAfterRollbackAndWholeTransportErasure",
     "CloudSyncTests/syntheticProtocolAuthorityCannotReachNativeCloudDeletion",
     "ForeignCurrencyPersistenceTests/localOnlySyncRejectsFXCreationAndConversionAtomically",
     "ForeignCurrencyPersistenceTests/localFXBlocksEnableAndRecoveryWithoutDiscardingTransportState",

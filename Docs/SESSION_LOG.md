@@ -17,6 +17,18 @@ test NON_PASS). Complete local/hosted/native acceptance is still pending at this
 No phone/probe/CloudKit operation, destructive cleanup, stage completion or next-feature entry.
 Instruction cleanup and earlier owner-approved scope edits in this worktree are preserved.
 
+The first frozen local-only candidate `272e3c8` was then independently checked read-only. Review
+found repeated full-queue footprint decoding on every ordinary record-provider check, creating
+quadratic work despite no FX data. The author stopped its complete validation during ordinary UI
+(exit 75), after static/build and 167.774375 ms benchmark success; it is not a complete pass.
+The same delivery now adds an actor-owned transport-footprint cache with synchronous local-FX
+existence checks, ingress/projection latching and rollback/full-clear invalidation, plus deterministic
+large-queue regressions. No benchmark threshold, retry or native-evidence rule is relaxed.
+The corrected six-suite focused run passed 125 methods; its native bundle and log are retained.
+The updated source gate rejected 169 negative mutations and requires 81 unit bindings plus the
+unchanged three isolated UI methods. Complete validation still belongs to the next frozen head;
+neither these checks nor the interrupted candidate's benchmark preapprove it.
+
 ## 2026-09-22 — Owner defers physical preparation and prioritizes local FX
 
 Owner confirmed the proposed local-first FX disposition and explicitly requested no more repeated
